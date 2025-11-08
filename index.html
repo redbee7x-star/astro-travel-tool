@@ -51,6 +51,13 @@
             border-color: #f97316; /* Orange-600 */
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
         }
+        /* Custom styles for description clarity without using strong */
+        .description-heading {
+            font-weight: 600; /* Semi-bold */
+            color: #4a5568; /* Gray-700 */
+            display: block;
+            margin-bottom: 0.25rem;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -106,44 +113,45 @@
     <script>
         // --- Core Functions for Zodiac Calculation ---
 
-        // Sun Sign boundaries (start date of each sign)
-        const ZODIAC_SIGNS = [
-            { name: "Capricorn", startMonth: 12, startDay: 22 },
-            { name: "Aquarius", startMonth: 1, startDay: 20 },
-            { name: "Pisces", startMonth: 2, startDay: 19 },
-            { name: "Aries", startMonth: 3, startDay: 21 },
-            { name: "Taurus", startMonth: 4, startDay: 20 },
-            { name: "Gemini", startMonth: 5, startDay: 21 },
-            { name: "Cancer", startMonth: 6, startDay: 21 },
-            { name: "Leo", startMonth: 7, startDay: 23 },
-            { name: "Virgo", startMonth: 8, startDay: 23 },
-            { name: "Libra", startMonth: 9, startDay: 23 },
-            { name: "Scorpio", startMonth: 10, startDay: 23 },
-            { name: "Sagittarius", startMonth: 11, startDay: 22 }
+        // Sun Sign boundaries sorted by start date (MM/DD)
+        const ZODIAC_BOUNDARIES = [
+            { name: "Aquarius", starts: [1, 20] },   // Jan 20
+            { name: "Pisces", starts: [2, 19] },     // Feb 19
+            { name: "Aries", starts: [3, 21] },      // Mar 21
+            { name: "Taurus", starts: [4, 20] },     // Apr 20
+            { name: "Gemini", starts: [5, 21] },     // May 21
+            { name: "Cancer", starts: [6, 21] },     // Jun 21
+            { name: "Leo", starts: [7, 23] },        // Jul 23
+            { name: "Virgo", starts: [8, 23] },      // Aug 23
+            { name: "Libra", starts: [9, 23] },      // Sep 23
+            { name: "Scorpio", starts: [10, 23] },   // Oct 23
+            { name: "Sagittarius", starts: [11, 22] }, // Nov 22
+            { name: "Capricorn", starts: [12, 22] }  // Dec 22
         ];
 
+        // Rewritten and corrected function to find the Sun Sign
         function getSunSign(month, day) {
-            let foundSign = "Capricorn"; // Default for Dec 22 - Jan 19
-
-            for (let i = 0; i < ZODIAC_SIGNS.length; i++) {
-                const sign = ZODIAC_SIGNS[i];
-                if (month === sign.startMonth && day >= sign.startDay) {
-                    foundSign = sign.name;
-                    break;
-                }
-                if (month === sign.startMonth + 1 || (sign.startMonth === 12 && month === 1)) {
-                    if (day < sign.startDay) {
-                        // This date belongs to the PREVIOUS sign
-                        foundSign = ZODIAC_SIGNS[(i === 0 ? ZODIAC_SIGNS.length - 1 : i - 1)].name;
-                        break;
-                    }
+            const dateKey = month * 100 + day;
+            
+            // Check backwards through the sorted boundaries to find the latest sign start date
+            for (let i = ZODIAC_BOUNDARIES.length - 1; i >= 0; i--) {
+                const sign = ZODIAC_BOUNDARIES[i];
+                const startKey = sign.starts[0] * 100 + sign.starts[1];
+                
+                if (dateKey >= startKey) {
+                    // This is the sign whose start date is on or before the input date
+                    return sign.name;
                 }
             }
-            return foundSign;
+            
+            // If the loop completes (e.g., date is Jan 19), it must be Capricorn, 
+            // which started in the previous year (Dec 22).
+            return "Capricorn"; 
         }
 
         function generateChineseZodiac(year) {
             const animals = ["Rat", "Ox", "Tiger", "Rabbit", "Dragon", "Snake", "Horse", "Goat", "Monkey", "Rooster", "Dog", "Pig"];
+            // The Chinese Zodiac cycle starts with the Rat in the year that is 4 mod 12
             const index = (year - 4) % 12;
             return animals[index < 0 ? index + 12 : index];
         }
@@ -171,8 +179,8 @@
                     "Bavarian Alps, Germany (Speed, scenery, and tradition)"
                 ],
                 default: [
-                    "New Zealand (Bungee jumping in Queenstown)", 
-                    "Dolomites, Italy (Fast-paced hiking trails)",
+                    "Bungee jumping in Queenstown, New Zealand", 
+                    "Hiking the Dolomites, Italy (Fast-paced trails)",
                     "Wadi Rum, Jordan (Desert exploration and historical sites)",
                     "Dublin, Ireland (Lively social scene and direct energy)"
                 ]
@@ -478,50 +486,50 @@
         function generateTravelPlan(sunSign, chineseZodiac) {
             // 1. Sun Sign Influence (Focuses on the HOW/WHY of the trip - Western Personality)
             const sunDescriptions = {
-                Aries: "As a pioneering Aries, your Sun Sign demands a journey of **action and spontaneity**. You need physical engagement, challenge, and the freedom to start new things.",
-                Taurus: "Your sensual Taurus Sun Sign requires a journey focused on **comfort, luxury, and the senses**. Quality food, beautiful environments, and deep relaxation are essential.",
-                Gemini: "Your social Gemini spirit thrives on a trip involving **short-hops, lively cities, and constant communication**. Variety, movement, and social interaction are key.",
-                Cancer: "Your sensitive Cancer Sun Sign needs a retreat focused on **intimacy, memory-making, and coastal serenity**. Seek places that feel like a second home or have deep historical roots.",
-                Leo: "The dramatic Leo in you demands a journey that is **high-profile, vibrant, and stylish**. Look for places where you can be celebrated, or where the culture is visibly spectacular.",
-                Virgo: "The meticulous Virgo requires a journey focused on **wellness, structure, or skill-building**. You benefit from a focused trip, perhaps a retreat with a clear, constructive goal.",
-                Libra: "The harmonious Libra will find beauty in an escape that is **culturally rich, balanced, and aesthetically pleasing**. Your trip must emphasize social elegance and visual harmony.",
-                Scorpio: "Your transformative Scorpio nature will thrive on an experience that is **intense, secluded, or deep**. Go deep—whether through physical challenge, unraveling mystery, or profound solitude.",
-                Sagittarius: "Your expansive Sagittarian nature needs an expedition that is **grand, philosophical, and long-distance**. Seek vast landscapes, open-ended learning, and cultural immersion.",
-                Capricorn: "The goal-oriented Capricorn needs a journey that is **structured, rich in history, or monumental**. Consider destinations with legacy, high ambition, or organizational excellence.",
-                Aquarius: "Your unique Aquarian soul requires a destination that is **unique, tech-forward, or humanitarian**. Seek out places with cutting-edge innovation or progressive social structures.",
-                Pisces: "The dreamy Pisces needs an escape that is **soulful, meditative, and ethereal**. Find a water-centric landscape that encourages quiet contemplation and spiritual renewal."
+                Aries: "As a pioneering Aries, your Sun Sign demands a journey of \"action and spontaneity\". You need physical engagement, challenge, and the freedom to start new things.",
+                Taurus: "Your sensual Taurus Sun Sign requires a journey focused on \"comfort, luxury, and the senses\". Quality food, beautiful environments, and deep relaxation are essential.",
+                Gemini: "Your social Gemini spirit thrives on a trip involving \"short-hops, lively cities, and constant communication\". Variety, movement, and social interaction are key.",
+                Cancer: "Your sensitive Cancer Sun Sign needs a retreat focused on \"intimacy, memory-making, and coastal serenity\". Seek places that feel like a second home or have deep historical roots.",
+                Leo: "The dramatic Leo in you demands a journey that is \"high-profile, vibrant, and stylish\". Look for places where you can be celebrated, or where the culture is visibly spectacular.",
+                Virgo: "The meticulous Virgo requires a journey focused on \"wellness, structure, or skill-building\". You benefit from a focused trip, perhaps a retreat with a clear, constructive goal.",
+                Libra: "The harmonious Libra will find beauty in an escape that is \"culturally rich, balanced, and aesthetically pleasing\". Your trip must emphasize social elegance and visual harmony.",
+                Scorpio: "Your transformative Scorpio nature will thrive on an experience that is \"intense, secluded, or deep\". Go deep—whether through physical challenge, unraveling mystery, or profound solitude.",
+                Sagittarius: "Your expansive Sagittarian nature needs an expedition that is \"grand, philosophical, and long-distance\". Seek vast landscapes, open-ended learning, and cultural immersion.",
+                Capricorn: "The goal-oriented Capricorn needs a journey that is \"structured, rich in history, or monumental\". Consider destinations with legacy, high ambition, or organizational excellence.",
+                Aquarius: "Your unique Aquarian soul requires a destination that is \"unique, tech-forward, or humanitarian\". Seek out places with cutting-edge innovation or progressive social structures.",
+                Pisces: "The dreamy Pisces needs an escape that is \"soulful, meditative, and ethereal\". Find a water-centric landscape that encourages quiet contemplation and spiritual renewal."
             };
 
             // 2. Chinese Zodiac Influence (Focuses on the WHAT/FOCUS of the trip - Goal)
             const animalDescriptions = {
-                Rat: "The **Rat** influences your trip to focus on **networking and vibrant city life**, encouraging connections and quick-witted exploration in urban hubs.",
-                Ox: "The **Ox** guides you toward **stability, tradition, and physical endurance**. You thrive in settings with deep historical roots or grounded, natural order.",
-                Tiger: "The **Tiger** highlights **bold explorations, historical conquests, and untamed natural areas**, fueling courage and adventure on a large scale.",
-                Rabbit: "The **Rabbit** emphasizes **artistic quiet spaces or hidden gems**, fostering peace and requiring flexibility to discover charming, less-traveled paths.",
-                Dragon: "The **Dragon** suggests **powerful, high-altitude landscapes and innovation**, asserting leadership and success in environments that push boundaries.",
-                Snake: "The **Snake** directs you toward **seclusion and deep cultural immersion**, aiding introspection and appreciation for intense, subtle beauty and mystery.",
-                Horse: "The **Horse** means your journey should be **expansive, fast-paced, and full of freedom**, best experienced via a scenic road trip or major global event.",
-                Goat: "The **Goat** roots your travel in **simple living and beautiful, pastoral settings**, seeking harmony, artistry, and a gentle climate.",
-                Monkey: "The **Monkey** makes your trip about **lively markets, quick discovery, and witty social dynamics**, satisfying curiosity and promoting quick learning.",
-                Rooster: "The **Rooster** makes impeccable **detail and self-improvement** key. Seek destinations known for high-quality organization or professional excellence.",
-                Dog: "The **Dog** focuses on destinations that require **loyalty to a single community or scenic walks**, promoting strong connection and reliable comfort.",
-                Pig: "The **Pig** ensures your journey is about **indulgent food and warm, welcoming climates**, prioritizing comfort, pleasure, and effortless enjoyment."
+                Rat: "The \"Rat\" influences your trip to focus on \"networking and vibrant city life\", encouraging connections and quick-witted exploration in urban hubs.",
+                Ox: "The \"Ox\" guides you toward \"stability, tradition, and physical endurance\". You thrive in settings with deep historical roots or grounded, natural order.",
+                Tiger: "The \"Tiger\" highlights \"bold explorations, historical conquests, and untamed natural areas\", fueling courage and adventure on a large scale.",
+                Rabbit: "The \"Rabbit\" emphasizes \"artistic quiet spaces or hidden gems\", fostering peace and requiring flexibility to discover charming, less-traveled paths.",
+                Dragon: "The \"Dragon\" suggests \"powerful, high-altitude landscapes and innovation\", asserting leadership and success in environments that push boundaries.",
+                Snake: "The \"Snake\" directs you toward \"seclusion and deep cultural immersion\", aiding introspection and appreciation for intense, subtle beauty and mystery.",
+                Horse: "The \"Horse\" means your journey should be \"expansive, fast-paced, and full of freedom\", best experienced via a scenic road trip or major global event.",
+                Goat: "The \"Goat\" roots your travel in \"simple living and beautiful, pastoral settings\", seeking harmony, artistry, and a gentle climate.",
+                Monkey: "The \"Monkey\" makes your trip about \"lively markets, quick discovery, and witty social dynamics\", satisfying curiosity and promoting quick learning.",
+                Rooster: "The \"Rooster\" makes impeccable \"detail and self-improvement\" key. Seek destinations known for high-quality organization or professional excellence.",
+                Dog: "The \"Dog\" focuses on destinations that require \"loyalty to a single community or scenic walks\", promoting strong connection and reliable comfort.",
+                Pig: "The \"Pig\" ensures your journey is about \"indulgent food and warm, welcoming climates\", prioritizing comfort, pleasure, and effortless enjoyment."
             };
 
-            // 3. Final Combined Advice
+            // 3. Final Combined Advice (Removed internal bolding here too)
             const finalAdvice = {
-                Aries: `Given this combination, your ideal itinerary requires you to prioritize **physical challenge** and **spontaneous freedom** for maximum renewal.`,
-                Taurus: `Your optimal itinerary means seeking out spaces that offer **natural beauty, luxurious comfort, and deep sensual satisfaction** in the arts or cuisine.`,
-                Gemini: `This combination suggests a trip where you can **move quickly between diverse social scenes**—flexible logistics and continuous mental stimulation are paramount.`,
-                Cancer: `Your journey should be a dedicated time to **connect with deep history or loved ones** in a cozy, water-centric setting that encourages emotional security.`,
-                Leo: `The path forward demands a trip that is **visually striking and allows for self-expression**, involving high-energy cultural events or grand, photogenic destinations.`,
-                Virgo: `Your trip should be a constructive endeavor; seek out a location that enables **organized wellness, practical skill mastery, or focused research** in an orderly setting.`,
-                Libra: `This combination requires a pursuit of **aesthetic perfection and harmonious social settings**. Choose a place known for balance, beauty, and refined culture.`,
-                Scorpio: `Your ideal itinerary involves a **deep, transformative dive** into a solitary or mysterious location, pushing your mental and emotional boundaries.`,
-                Sagittarius: `The cosmos suggests a need for **grand scale, long distances, and philosophical learning**. Book an open-ended journey that broadens your global perspective.`,
-                Capricorn: `You must seek out **monumental achievements, structured challenges, or historical legacies**. Your itinerary should have clear goals and a sense of enduring purpose.`,
-                Aquarius: `Your journey should be focused on the **unique and the unconventional**. Seek innovative urban environments or places where you can observe distinct social and technological progress.`,
-                Pisces: `The best journey for you will be a gentle escape focused on **water, solitude, and spiritual renewal**, allowing you to merge with the ethereal beauty of nature.`
+                Aries: `Given this combination, your ideal itinerary requires you to prioritize physical challenge and spontaneous freedom for maximum renewal.`,
+                Taurus: `Your optimal itinerary means seeking out spaces that offer natural beauty, luxurious comfort, and deep sensual satisfaction in the arts or cuisine.`,
+                Gemini: `This combination suggests a trip where you can move quickly between diverse social scenes—flexible logistics and continuous mental stimulation are paramount.`,
+                Cancer: `Your journey should be a dedicated time to connect with deep history or loved ones in a cozy, water-centric setting that encourages emotional security.`,
+                Leo: `The path forward demands a trip that is visually striking and allows for self-expression, involving high-energy cultural events or grand, photogenic destinations.`,
+                Virgo: `Your trip should be a constructive endeavor; seek out a location that enables organized wellness, practical skill mastery, or focused research in an orderly setting.`,
+                Libra: `This combination requires a pursuit of aesthetic perfection and harmonious social settings. Choose a place known for balance, beauty, and refined culture.`,
+                Scorpio: `Your ideal itinerary involves a deep, transformative dive into a solitary or mysterious location, pushing your mental and emotional boundaries.`,
+                Sagittarius: `The cosmos suggests a need for grand scale, long distances, and philosophical learning. Book an open-ended journey that broadens your global perspective.`,
+                Capricorn: `You must seek out monumental achievements, structured challenges, or historical legacies. Your itinerary should have clear goals and a sense of enduring purpose.`,
+                Aquarius: `Your journey should be focused on the unique and the unconventional. Seek innovative urban environments or places where you can observe distinct social and technological progress.`,
+                Pisces: `The best journey for you will be a gentle escape focused on water, solitude, and spiritual renewal, allowing you to merge with the ethereal beauty of nature.`
             };
 
             return {
@@ -548,10 +556,10 @@
 
             const travelPlanElement = document.getElementById('travelPlan');
             
-            // Structured HTML output to clearly delineate the two influences
+            // Removed <strong> tags from description lines for non-bolded look
             travelPlanElement.innerHTML = `
-                <p class="mb-3"><strong>Sun Sign (${sunSign}):</strong> ${planData.sunDescription}</p>
-                <p class="mb-3"><strong>Animal Sign (${chineseZodiac}):</strong> ${planData.animalDescription}</p>
+                <p class="mb-3"><span class="description-heading">Sun Sign (${sunSign}):</span> ${planData.sunDescription}</p>
+                <p class="mb-3"><span class="description-heading">Animal Sign (${chineseZodiac}):</span> ${planData.animalDescription}</p>
                 <p class="mt-4 p-3 bg-orange-100 border-l-4 border-orange-500 text-gray-700">
                     <strong>Final Itinerary Advice:</strong> ${planData.finalAdvice}
                 </p>
