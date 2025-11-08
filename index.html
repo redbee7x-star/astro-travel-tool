@@ -3,383 +3,621 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Follow Your Stars: A Friendly Guide to Astrocartography & Zodiac Travel</title>
-    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': '#FF8C00', // Orange primary accent
-                        'secondary': '#FFA700', // Lighter orange secondary accent
-                        'light-bg': '#F8F8F8', // Off-white background
-                        'light-card': '#FFFFFF', // White card background
-                        'dark-text': '#333333', // Dark text for readability on light background
-                        'light-gray-text': '#555555', // Slightly lighter gray for secondary text
-                        'light-border': '#E0E0E0', // Light border for cards
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
+    <title>Follow Your Star (A Friendly Guide to Astrocartography & Zodiac Travel)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
-            background-color: #F8F8F8; /* Light background */
             font-family: 'Inter', sans-serif;
-            color: #333333; /* Dark text */
+            background-color: #fefcfb; /* Very light creamy background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
         }
         .card {
-            background-color: #FFFFFF; /* White card */
-            border: 1px solid #E0E0E0; /* Light border */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); /* Softer shadow */
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -4px rgba(0, 0, 0, 0.03);
+            max-width: 500px;
+            width: 100%;
+            transition: all 0.3s ease;
+            border-top: 5px solid #f97316; /* Orange-600 border accent */
         }
-        .gradient-text {
-            background-image: linear-gradient(to right, #FFA700, #FF8C00); /* Orange gradient */
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .btn-primary {
+            background-color: #f97316; /* Orange-600 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.4);
         }
-        .decan-info {
-            transition: all 0.3s ease-in-out;
-            border-color: #FF8C00; /* Orange border for result card */
+        .btn-primary:hover {
+            background-color: #ea580c; /* Orange-700 */
         }
-        input[type="date"] {
-            color: #333333; /* Ensure date input text is dark */
+        .input-field {
+            padding: 0.75rem;
+            border: 2px solid #fdba74; /* Orange-300 */
+            border-radius: 0.5rem;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(0.3); /* Adjust icon color for light background */
+        .input-field:focus {
+            outline: none;
+            border-color: #f97316; /* Orange-600 */
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
         }
     </style>
 </head>
+<body class="bg-gray-100">
 
-<body class="p-4 md:p-8 min-h-screen flex items-center justify-center">
+    <div class="card space-y-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800">Follow Your Star</h1>
+        <h2 class="text-lg text-center text-gray-500">(A Friendly Guide to Astrocartography & Zodiac Travel)</h2>
 
-    <!-- Main Application Container --><div id="appContainer" class="max-w-4xl w-full hidden">
+        <!-- Input Form -->
+        <div class="space-y-4" id="inputForm">
+            <div>
+                <label for="birthDate" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                <input type="date" id="birthDate" class="input-field" required>
+            </div>
+            <button class="btn-primary w-full" onclick="calculateZodiac()">
+                Reveal My Cosmic Itinerary
+            </button>
+        </div>
 
-        <header class="text-center mb-10">
-            <h1 class="text-5xl font-extrabold gradient-text tracking-tight">Follow Your Stars: A Friendly Guide</h1>
-            <p class="text-dark-text mt-2 text-xl">Astrocartography & Zodiac Travel</p>
-        </header>
-
-        <div class="card p-6 md:p-8 rounded-xl space-y-6">
+        <!-- Result Display -->
+        <div id="result" class="hidden space-y-4 p-5 bg-orange-50 border border-orange-200 rounded-xl">
+            <h3 class="text-xl font-bold text-orange-800 text-center mb-4">Your Astrological Profile</h3>
             
-            <!-- Input: Birth Date --><div>
-                <label for="birthDate" class="block text-lg font-semibold mb-3 text-dark-text">1. Select Your Birth Date:</label>
-                <input type="date" id="birthDate" value="1983-03-23" required 
-                       class="w-full p-3 rounded-lg bg-gray-100 text-dark-text border border-light-border focus:ring-primary focus:border-primary transition duration-150">
-            </div>
-
-            <!-- Process Button --><button id="processButton" class="w-full py-3 px-4 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition duration-200 shadow-lg mt-4">
-                Reveal My Travel Profile
-            </button>
-
-            <!-- Output: Decan Result --><div id="resultCard" class="decan-info p-5 rounded-lg border-2 hidden space-y-4">
-                <h2 class="text-3xl font-bold text-dark-text mb-2">
-                    Your Energy Profile: <span id="signName" class="gradient-text"></span>
-                </h2>
-                
-                <p class="text-xl font-medium text-light-gray-text">
-                    <span class="text-primary font-bold">Decan Influence:</span> 
-                    <span id="decanName"></span>
-                </p>
-
-                <!-- Energy Summary --><div>
-                    <h3 class="text-2xl font-semibold mt-6 mb-2 text-primary border-b border-light-border pb-1">Primary Travel Energy</h3>
-                    <p id="decanEnergy" class="text-dark-text leading-relaxed"></p>
+            <div class="flex flex-col sm:flex-row justify-around items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <div class="text-center p-3 w-full bg-white rounded-lg shadow-md flex-1">
+                    <p class="text-sm font-medium text-gray-500">Sun Sign</p>
+                    <p id="sunSign" class="text-3xl font-extrabold text-blue-600 mt-1"></p>
                 </div>
-
-                <!-- Destination Recommendations --><div>
-                    <h3 class="text-2xl font-semibold mt-6 mb-2 text-primary border-b border-light-border pb-1">Recommended Destinations</h3>
-                    <ul id="destinationList" class="list-disc list-inside space-y-2 pl-4 text-dark-text">
-                        <!-- Destinations will be populated here --></ul>
+                <div class="text-center p-3 w-full bg-white rounded-lg shadow-md flex-1">
+                    <p class="text-sm font-medium text-gray-500">Animal Sign (Year)</p>
+                    <p id="chineseZodiac" class="text-3xl font-extrabold text-green-600 mt-1"></p>
                 </div>
             </div>
 
-            <div id="initialMessage" class="text-center p-6 text-light-gray-text italic">
-                Enter your birth date and click 'Reveal' to see your unique travel profile.
-            </div>
-        </div>
-    </div>
-    
-    <!-- Access Gate Modal --><div id="accessGate" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
-        <div class="card p-8 rounded-xl max-w-md text-center space-y-6">
-            <h2 id="gateTitle" class="text-3xl font-bold gradient-text">Access Locked</h2>
-            <p id="gateMessage" class="text-lg text-light-gray-text">This specialized tool requires an active subscription.</p>
-            <p class="text-sm text-gray-500">By clicking below, you confirm you have a valid, active subscription to our premium content.</p>
-            <button id="unlockButton" class="w-full py-3 px-4 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition duration-200 shadow-lg">
-                I Confirm My Subscription & Unlock
-            </button>
-            <p id="domainWarning" class="text-xs text-red-500 hidden"></p>
-        </div>
-    </div>
+            <h3 class="text-xl font-semibold text-gray-700 pt-4 border-t border-orange-100 mt-4">The Cosmic Travel Plan</h3>
+            <!-- This container will be populated with structured HTML -->
+            <div id="travelPlan" class="text-gray-600 leading-relaxed"></div>
 
+            <h4 class="text-lg font-semibold text-gray-700 pt-2">Recommended Destinations:</h4>
+            <ul id="destinationsList" class="list-disc ml-5 text-gray-600 space-y-1">
+                <!-- Destinations populate here -->
+            </ul>
+
+            <button class="btn-primary w-full mt-4 bg-gray-500 hover:bg-gray-700" onclick="resetForm()">
+                Try Another Date
+            </button>
+        </div>
+        
+        <!-- Error/Message Box -->
+        <div id="messageBox" class="hidden p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert"></div>
+    </div>
 
     <script>
-        // --- SECURITY & ACCESS CONTROL CONFIGURATION ---
-        const REQUIRED_DOMAIN = 'myastrowebsite.com';
-        const SUBSCRIBED_FLAG = 'astroDecanSubscribed';
-        const EMBEDDING_DOMAIN = 'YOUR_EMBEDDING_DOMAIN_HERE'; // !!! IMPORTANT: CHANGE THIS !!!
-        // -----------------------------------------------------------
+        // --- Core Functions for Zodiac Calculation ---
 
-        // Data Structure: Zodiac Signs and Decan Interpretations
-        // Ranges are based on Day of Year (Jan 1 = Day 1).
-        // Standard start dates (non-leap year): Aries=80 (Mar 21), Taurus=110 (Apr 20), etc.
-        const ZODIAC_DATA = [
-            {
-                sign: "Aries", range: [80, 110], // Mar 21 - Apr 19
-                decan1: { ruler: "Mars (Aries)", energy: "Pure Action & Initiation. Seek high-energy environments, places of competition, and rugged terrain. Ideal for solo travel, intense physical activity, and new beginnings.", destinations: ["Patagonia (Argentina/Chile)", "Las Vegas (USA)", "Northern Italy (Adrenaline Sports)"] },
-                decan2: { ruler: "Sun (Leo)", energy: "Leadership & Visibility. Travel for luxury, culture, and places where you can shine, perform, or be at the center of attention. Good for public speaking or creative projects.", destinations: ["Paris (France)", "New York City (USA)", "Dubai (UAE)"] },
-                decan3: { ruler: "Jupiter (Sagittarius)", energy: "Spiritual Passion & Broad Horizons. Perfect for travel that expands the mind, involves higher learning, or explores ancient philosophies and foreign cultures.", destinations: ["Machu Picchu (Peru)", "Kyoto (Japan)", "Bali (Indonesia)"] }
-            },
-            {
-                sign: "Taurus", range: [110, 140], // Apr 20 - May 20
-                decan1: { ruler: "Venus (Taurus)", energy: "Sensual Comfort & Natural Beauty. Seek places known for exquisite food, fine art, slow pace, and deep connection to nature. Focus on luxury relaxation and grounding.", destinations: ["Tuscany (Italy)", "Napa Valley (USA)", "Bordeaux (France)"] },
-                decan2: { ruler: "Mercury (Virgo)", energy: "Productivity & Practicality. Travel to places where you can focus on healing, work, or detailed study. Excellent for organizing retreats, health check-ups, or vocational trips.", destinations: ["Zurich (Switzerland)", "San Francisco (USA) (Tech/Wellness)", "The English Countryside"] },
-                decan3: { ruler: "Saturn (Capricorn)", energy: "Endurance & Legacy. Destinations that challenge you, involve working with history, or establishing long-term goals. Mountains and places of great tradition are favored.", destinations: ["Rocky Mountains (USA/Canada)", "Rome (Italy)", "Berlin (Germany)"] }
-            },
-            {
-                sign: "Gemini", range: [140, 170], // May 21 - Jun 20
-                decan1: { ruler: "Mercury (Gemini)", energy: "Communication & Quick Movement. Best for places with vibrant social scenes, bustling markets, or where you need to learn a new language or skill. Short trips are favored.", destinations: ["London (UK)", "Hong Kong (China)", "Barcelona (Spain)"] },
-                decan2: { ruler: "Jupiter (Libra)", energy: "Relationships & Intellectual Expansion. Travel focused on diplomatic meetings, collaborative projects, or finding balance and justice. Look for places with renowned universities or vibrant social justice movements.", destinations: ["Geneva (Switzerland)", "Toronto (Canada)", "Boston (USA)"] },
-                decan3: { ruler: "Mars (Aquarius)", energy: "Innovation & Group Action. Seek communities focused on technology, social reform, or unique, cutting-edge art. Ideal for large festivals, conventions, or humanitarian work.", destinations: ["Tokyo (Japan)", "Burning Man (USA - Group Focus)", "Silicon Valley (USA)"] }
-            },
-            {
-                sign: "Cancer", range: [170, 200], // Jun 21 - Jul 22
-                decan1: { ruler: "Moon (Cancer)", energy: "Home & Nurturing. Destinations that feel like a sanctuary, near water, or where you can connect with family history and deep emotion. Focus on rest and healing.", destinations: ["The Greek Islands", "Coastal Maine (USA)", "Lakeside Retreats (Worldwide)"] },
-                decan2: { ruler: "Pluto (Scorpio)", energy: "Transformation & Intensity. Travel for deep psychological work, uncovering secrets, or intense spiritual experiences. Seek places with historical mysteries or geothermal activity.", destinations: ["New Orleans (USA)", "Iceland (Volcanic Areas)", "Transylvania (Romania)"] },
-                decan3: { ruler: "Neptune (Pisces)", energy: "Imagination & Spirituality. Ideal for places associated with creative arts, meditation, or places where the boundary between worlds feels thin. Coastal and misty areas are favored.", destinations: ["Ireland (Coastal)", "Goa (India)", "Santorini (Greece)"] }
-            },
-            {
-                sign: "Leo", range: [200, 230], // Jul 23 - Aug 22
-                decan1: { ruler: "Sun (Leo)", energy: "Creative Expression & Royal Treatment. Travel that involves performance, art, or experiencing grand, historic splendor. You need warmth, drama, and appreciation.", destinations: ["Los Angeles (Hollywood)", "Monaco", "Versailles (France)"] },
-                decan2: { ruler: "Jupiter (Sagittarius)", energy: "High Adventure & Optimism. Travel for grand, expansive experiences, large-scale exploration, and connecting with global cultures. Think wide-open spaces and joyful pursuits.", destinations: ["African Safari (Kenya/Tanzania)", "The Andes Mountains", "Rio de Janeiro (Brazil)"] },
-                decan3: { ruler: "Mars (Aries)", energy: "Competitive Drive & Self-Assertion. Destinations that require courage, physical challenge, or places where you can lead a group project. Volcanic areas and places of dynamic growth.", destinations: ["Mount Fuji (Japan)", "Shanghai (China - Business)", "Australia (Outdoor Challenges)"] }
-            },
-            {
-                sign: "Virgo", range: [230, 260], // Aug 23 - Sep 22
-                decan1: { ruler: "Mercury (Virgo)", energy: "Health & Organization. Seek wellness retreats, places for detailed study (e.g., historical archives), or environments focused on service. Perfect for eco-tourism or digital nomad setup.", destinations: ["Copenhagen (Denmark - Efficiency)", "Costa Rica (Eco-tourism)", "Ojai (California - Wellness)"] },
-                decan2: { ruler: "Saturn (Capricorn)", energy: "Structure & Discipline. Destinations that involve hard work, mastering a craft, or connecting with institutions and government. Think historical capitals and academic centers.", destinations: ["Washington D.C. (USA)", "London (UK)", "A Monastery (Tibet/Nepal)"] },
-                decan3: { ruler: "Venus (Taurus)", energy: "Artisan Skill & Earthly Pleasures. Focus on mastering an artistic skill, slow travel, or visiting places famous for crafts, pottery, or textile production. Deeply sensual experiences.", destinations: ["Florence (Italy)", "Marrakech (Morocco)", "Kyushu (Japan - Ceramics)"] }
-            },
-            {
-                sign: "Libra", range: [260, 290], // Sep 23 - Oct 22
-                decan1: { ruler: "Venus (Libra)", energy: "Harmony & Partnership. Ideal for travel with a spouse or partner. Seek places known for beauty, diplomacy, and balanced social life. Artistic elegance is key.", destinations: ["Vienna (Austria)", "Venice (Italy)", "Buenos Aires (Argentina)"] },
-                decan2: { ruler: "Uranus (Aquarius)", energy: "Freedom & Intellectual Excitement. Destinations that are unconventional, modern, or focus on social equity and technological breakthroughs. Good for meeting new kinds of people.", destinations: ["Reykjavik (Iceland)", "Amsterdam (Netherlands)", "Portland (Oregon, USA)"] },
-                decan3: { ruler: "Mercury (Gemini)", energy: "Social Buzz & Lightheartedness. Travel for meeting many people, attending lighthearted events, or simple pleasure trips that don't require heavy emotional investment.", destinations: ["Miami Beach (USA)", "Tel Aviv (Israel)", "Ibiza (Spain)"] }
-            },
-            {
-                sign: "Scorpio", range: [290, 320], // Oct 23 - Nov 21
-                decan1: { ruler: "Pluto (Scorpio)", energy: "Deep Transformation & Mystery. Seek destinations that challenge your limits, involve intense research, or are associated with the underworld or ancient rituals. Powerful, healing waters.", destinations: ["Mexico City (Mexico)", "Sicily (Italy)", "Chernobyl (Ukraine - History)"] },
-                decan2: { ruler: "Neptune (Pisces)", energy: "Spiritual Surrender & Escapism. Perfect for deep retreats, places where you can lose yourself in the vastness of the ocean or the quiet of a monastery. Focus on dreams and healing.", destinations: ["Kerala (India)", "A Remote Caribbean Island", "The Amazon Rainforest"] },
-                decan3: { ruler: "Moon (Cancer)", energy: "Emotional Depth & Security. Travel to reconnect with roots, resolve deep family issues, or seek safe, deeply comforting environments. Coastal homes or quiet islands.", destinations: ["A Private Villa in Cornwall (UK)", "Malta", "Your Ancestral Homeland"] }
-            },
-            {
-                sign: "Sagittarius", range: [320, 350], // Nov 22 - Dec 21
-                decan1: { ruler: "Jupiter (Sagittarius)", energy: "Expansion & Philosophy. Travel for higher learning, publishing, major sporting events, or engaging with different belief systems. Wide-open spaces are mandatory.", destinations: ["Tibet (Himalayas)", "Oxford/Cambridge (UK)", "Buenos Aires (Argentina - Equestrian)"] },
-                decan2: { ruler: "Mars (Aries)", energy: "Freedom & Energetic Pursuit. Seek high-octane adventure travel, places that require physical stamina, and a general lack of rigid plans. Think trekking and exploration.", destinations: ["Nepal (Annapurna Trek)", "Colorado (USA - Skiing/Hiking)", "Mongolia (Steppes)"] },
-                decan3: { ruler: "Sun (Leo)", energy: "Optimistic Self-Expression & Public Role. Destinations where you can teach, lead, or inspire others. Good for public tours, lectures, or performing on an international stage.", destinations: ["San Miguel de Allende (Mexico)", "Sydney (Australia)", "The French Riviera"] }
-            },
-            {
-                sign: "Capricorn", range: [350, 20], // Dec 22 - Jan 19 (Wrap-around case: Day 350 to Day 19)
-                decan1: { ruler: "Saturn (Capricorn)", energy: "Career & Ambition. Travel focused on work, establishing authority, and connecting with powerful institutions or historical structures. Mountains and old cities are key.", destinations: ["New York City (Wall Street)", "Pyramids of Giza (Egypt)", "Hong Kong (Business)"] },
-                decan2: { ruler: "Venus (Taurus)", energy: "Building Wealth & Material Security. Seek places known for stable financial markets, high-end real estate, or conservative investment opportunities. Focus on enduring value.", destinations: ["Singapore", "Zurich (Switzerland)", "Vatican City (History/Endurance)"] },
-                decan3: { ruler: "Mercury (Virgo)", energy: "Service & Detailed Planning. Ideal for trips involving charity work, meticulous planning, or organizing complex logistical projects. Focus on solving problems.", destinations: ["Tokyo (Japan - Efficiency)", "Helsinki (Finland)", "Any place needing structured aid"] }
-            },
-            {
-                sign: "Aquarius", range: [20, 50], // Jan 20 - Feb 18
-                decan1: { ruler: "Uranus (Aquarius)", energy: "Technology & Revolution. Seek places known for futuristic thinking, scientific breakthroughs, or unique community experiments. Good for networking with visionaries.", destinations: ["Austin (USA - Tech Hub)", "Space Coast (Florida, USA)", "Canberra (Australia - Planning)"] },
-                decan2: { ruler: "Mercury (Gemini)", energy: "Social Networking & Idea Exchange. Travel for large conferences, festivals, or any environment where many diverse ideas are being shared rapidly. Group travel is favored.", destinations: ["SXSW (USA - Conference)", "Montreal (Canada)", "Berlin (Germany - Diverse Scene)"] },
-                decan3: { ruler: "Venus (Libra)", energy: "Justice & Community Harmony. Destinations focused on humanitarian causes, legal reform, or creating equitable spaces. Think peaceful, aesthetically pleasing cities.", destinations: ["Stockholm (Sweden)", "Vancouver (Canada)", "Copenhagen (Denmark)"] }
-            },
-            {
-                sign: "Pisces", range: [50, 80], // Feb 19 - Mar 20
-                decan1: { ruler: "Neptune (Pisces)", energy: "Spiritual Connection & Escapism. Ideal for places near the ocean, where you can meditate, create art, or engage in deep spiritual retreat. Water is essential.", destinations: ["Maui (Hawaii)", "Isle of Skye (Scotland)", "Northern Lights regions"] },
-                decan2: { ruler: "Pluto (Scorpio)", energy: "Sacrifice & Deep Healing. Travel for shedding old habits, intensive psychological cleansing, or connecting with places that hold deep, ancestral pain that needs resolution.", destinations: ["Kyoto (Japan - Temples)", "A Remote Ashram (India)", "Lisbon (Portugal)"] },
-                decan3: { ruler: "Moon (Cancer)", energy: "Comfort & Emotional Security. Seek gentle, quiet places where you can focus on self-care, simple pleasures, and rebuilding emotional foundations. Small towns or villages.", destinations: ["Provence (France)", "A small coastal village in Italy", "New Zealand (South Island)"] }
-            },
+        // Sun Sign boundaries (start date of each sign)
+        const ZODIAC_SIGNS = [
+            { name: "Capricorn", startMonth: 12, startDay: 22 },
+            { name: "Aquarius", startMonth: 1, startDay: 20 },
+            { name: "Pisces", startMonth: 2, startDay: 19 },
+            { name: "Aries", startMonth: 3, startDay: 21 },
+            { name: "Taurus", startMonth: 4, startDay: 20 },
+            { name: "Gemini", startMonth: 5, startDay: 21 },
+            { name: "Cancer", startMonth: 6, startDay: 21 },
+            { name: "Leo", startMonth: 7, startDay: 23 },
+            { name: "Virgo", startMonth: 8, startDay: 23 },
+            { name: "Libra", startMonth: 9, startDay: 23 },
+            { name: "Scorpio", startMonth: 10, startDay: 23 },
+            { name: "Sagittarius", startMonth: 11, startDay: 22 }
         ];
 
-        // Checks if a year is a leap year
-        function isLeapYear(year) {
-            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-        }
-        
-        // Function to convert date to Day of Year (Jan 1 = 1)
-        function getDayOfYear(date) {
-            const year = date.getUTCFullYear();
-            const startOfYear = Date.UTC(year, 0, 1);
-            const diff = date.getTime() - startOfYear;
-            const oneDay = 1000 * 60 * 60 * 24;
-            // The Day of Year starts at 1
-            return Math.floor(diff / oneDay) + 1; 
-        }
+        function getSunSign(month, day) {
+            let foundSign = "Capricorn"; // Default for Dec 22 - Jan 19
 
-        // Function to find the Decan based on birth date
-        function getDecan(date) {
-            const targetDay = getDayOfYear(date);
-            const year = date.getUTCFullYear();
-            let signData = null;
-            let startDay = 0;
-            let sunDegreeInSign = 0;
-
-            const getSignByDay = (day, year) => {
-                // Adjust ranges for a leap year starting after Feb 29 (day 60)
-                const leapAdjustment = isLeapYear(year) && day > 60 ? 1 : 0; 
-                const adjustedDay = day - leapAdjustment;
-
-                for (let i = 0; i < ZODIAC_DATA.length; i++) {
-                    const data = ZODIAC_DATA[i];
-                    const [start, end] = data.range;
-                    
-                    // Adjust start/end for signs starting *after* Feb 29 for the current year
-                    const adjustedStart = start + (isLeapYear(year) && start > 60 ? 1 : 0);
-                    const adjustedEnd = end + (isLeapYear(year) && end > 60 ? 1 : 0);
-                    
-                    // Handle Dec 22 - Jan 19 wrap-around
-                    if (start > end) { 
-                        // If day is Dec 22 (or later) OR Jan 19 (or earlier)
-                        if (day >= adjustedStart || day < adjustedEnd) {
-                            return { data: data, start: adjustedStart };
-                        }
-                    } 
-                    // Handle standard range
-                    else if (day >= adjustedStart && day < adjustedEnd) {
-                        return { data: data, start: adjustedStart };
+            for (let i = 0; i < ZODIAC_SIGNS.length; i++) {
+                const sign = ZODIAC_SIGNS[i];
+                if (month === sign.startMonth && day >= sign.startDay) {
+                    foundSign = sign.name;
+                    break;
+                }
+                if (month === sign.startMonth + 1 || (sign.startMonth === 12 && month === 1)) {
+                    if (day < sign.startDay) {
+                        // This date belongs to the PREVIOUS sign
+                        foundSign = ZODIAC_SIGNS[(i === 0 ? ZODIAC_SIGNS.length - 1 : i - 1)].name;
+                        break;
                     }
                 }
-                // Fallback (should not happen if all ranges cover 365 days)
-                return { data: ZODIAC_DATA[0], start: ZODIAC_DATA[0].range[0] }; 
-            };
-
-            const foundSign = getSignByDay(targetDay, year);
-            signData = foundSign.data;
-            startDay = foundSign.start;
-
-            const daysInYear = isLeapYear(year) ? 366 : 365;
-
-            // Calculate Sun Degree in Sign (0 to 29)
-            if (signData.sign === "Capricorn" && targetDay >= startDay) {
-                 // Dec 22 onwards
-                 sunDegreeInSign = targetDay - startDay;
-            } else if (signData.sign === "Capricorn" && targetDay < startDay) {
-                 // Jan 1 to Jan 19
-                 sunDegreeInSign = (daysInYear - startDay) + targetDay;
-            } else if (startDay > targetDay) {
-                 // This covers the day shift for leap years where the current day is before the start day of the sign 
-                 // (e.g., trying to calculate Aries in a leap year on Mar 20)
-                 // This case should be covered by the range check, but is here for robustness.
-                 sunDegreeInSign = 0; // Default to 0 if misaligned
-            } else {
-                // All other non-wrapping signs (Aries through Sagittarius)
-                sunDegreeInSign = targetDay - startDay;
             }
-            
-            // Adjust sunDegreeInSign to fit within 30 degrees (0-29)
-            sunDegreeInSign = sunDegreeInSign % 30;
-
-            // Determine the decan (0-9 = Decan 1, 10-19 = Decan 2, 20-29 = Decan 3)
-            let decanIndex = Math.floor(sunDegreeInSign / 10) + 1;
-            
-            if (decanIndex < 1) decanIndex = 1;
-            if (decanIndex > 3) decanIndex = 3;
-
-            const decanKey = 'decan' + decanIndex;
-            const decanProfile = signData[decanKey];
-
-            return {
-                sign: signData.sign,
-                decanIndex: decanIndex,
-                decanProfile: decanProfile,
-                degree: sunDegreeInSign.toFixed(0) + '°' 
-            };
+            return foundSign;
         }
 
-        // Function to update the UI with Decan data
-        function updateUI(profile) {
-            document.getElementById('signName').textContent = `${profile.sign} (${profile.degree})`;
-            document.getElementById('decanName').textContent = `Decan ${profile.decanIndex} (Ruled by ${profile.decanProfile.ruler})`;
-            document.getElementById('decanEnergy').textContent = profile.decanProfile.energy;
-            
-            const list = document.getElementById('destinationList');
-            list.innerHTML = profile.decanProfile.destinations.map(dest => `<li><span class="font-bold text-dark-text">${dest.split('(')[0].trim()}</span> ${dest.includes('(') ? '(' + dest.split('(')[1] : ''}</li>`).join('');
-
-            document.getElementById('initialMessage').classList.add('hidden');
-            document.getElementById('resultCard').classList.remove('hidden');
+        function generateChineseZodiac(year) {
+            const animals = ["Rat", "Ox", "Tiger", "Rabbit", "Dragon", "Snake", "Horse", "Goat", "Monkey", "Rooster", "Dog", "Pig"];
+            const index = (year - 4) % 12;
+            return animals[index < 0 ? index + 12 : index];
         }
 
-        // The core logic function executed on button click
-        function calculateProfile() {
-            const dateInput = document.getElementById('birthDate').value;
-            if (dateInput) {
-                // Parse date string (YYYY-MM-DD) directly as UTC to avoid local timezone shifts
-                const [year, month, day] = dateInput.split('-').map(Number);
-                // Note: month is 0-indexed in JavaScript Date (Jan=0, Mar=2)
-                const date = new Date(Date.UTC(year, month - 1, day)); 
-                
-                const profile = getDecan(date);
-                updateUI(profile);
-            }
-        }
+        // --- Destination & Plan Logic ---
 
-        // --- ACCESS CONTROL AND INITIALIZATION ---
-
-        function checkAccess() {
-            const gate = document.getElementById('accessGate');
-            const app = document.getElementById('appContainer');
-            const domainWarning = document.getElementById('domainWarning');
-            const currentHost = window.location.hostname;
-            
-            // Check if the current host matches any allowed criteria
-            let isAllowedDomain = currentHost === REQUIRED_DOMAIN 
-                               || currentHost.includes('github.io') 
-                               || currentHost === 'localhost' 
-                               || currentHost === '127.0.0.1'
-                               // ADDED FIX: Allows the user's specific embedding domain
-                               || currentHost === EMBEDDING_DOMAIN; 
-            
-            if (!isAllowedDomain) {
-                gate.classList.remove('hidden');
-                document.getElementById('gateTitle').textContent = "Domain Mismatch";
-                document.getElementById('gateMessage').textContent = "This tool can only be accessed on the approved website domain to protect the content. Please use the original embedded page.";
-                document.getElementById('unlockButton').classList.add('hidden');
-                domainWarning.classList.remove('hidden');
-                domainWarning.textContent = `Error: App accessed from unauthorized domain: ${currentHost}. Required: ${REQUIRED_DOMAIN} or ${EMBEDDING_DOMAIN}`;
-                return false;
-            }
-
-            let isSubscribed = localStorage.getItem(SUBSCRIBED_FLAG) === 'true';
-
-            if (isSubscribed) {
-                gate.classList.add('hidden');
-                app.classList.remove('hidden');
-                return true;
-            } else {
-                gate.classList.remove('hidden');
-                app.classList.add('hidden');
-                return false;
-            }
-        }
-
-        function handleUnlock() {
-            localStorage.setItem(SUBSCRIBED_FLAG, 'true');
-            checkAccess();
-            // Re-bind the click handler after unlocking, if necessary
-            document.getElementById('processButton').addEventListener('click', calculateProfile);
-        }
-
-        // --- Event Listeners and Setup ---
-        window.onload = () => {
-            document.getElementById('unlockButton').addEventListener('click', handleUnlock);
-            
-            if (checkAccess()) {
-                // Only attach the click listener if access is granted initially
-                document.getElementById('processButton').addEventListener('click', calculateProfile);
-                calculateProfile();
+        const DESTINATIONS = {
+            Aries: { // Mode: Adventure, Action
+                Rat: [
+                    "Tokyo, Japan (High-energy networking & spontaneous exploration)", 
+                    "Rio de Janeiro, Brazil (Vibrant city life and action)", 
+                    "Miami, USA (Fast-paced nightlife and ambition)",
+                    "Seoul, South Korea (Innovation and competitive spirit)"
+                ],
+                Tiger: [
+                    "Machu Picchu, Peru (Bold historical conquest)", 
+                    "The Alps, Switzerland (Challenging mountaineering)",
+                    "Kilimanjaro, Tanzania (Physical challenge and goal-setting)",
+                    "Las Vegas, USA (Big risks and high stakes)"
+                ],
+                Horse: [
+                    "Route 66, USA (The ultimate expansive road trip)", 
+                    "Patagonia, Argentina/Chile (Grand, untamed nature)",
+                    "Iceland Ring Road (Self-driven exploration and freedom)",
+                    "Bavarian Alps, Germany (Speed, scenery, and tradition)"
+                ],
+                default: [
+                    "New Zealand (Bungee jumping in Queenstown)", 
+                    "Dolomites, Italy (Fast-paced hiking trails)",
+                    "Wadi Rum, Jordan (Desert exploration and historical sites)",
+                    "Dublin, Ireland (Lively social scene and direct energy)"
+                ]
+            },
+            Taurus: { // Mode: Luxury, Comfort, Sensual
+                Ox: [
+                    "Tuscany, Italy (Vineyards and rustic luxury)", 
+                    "Napa Valley, USA (Finest food and wine)",
+                    "Bordeaux, France (Wine heritage and beautiful chateaux)",
+                    "Amalfi Coast, Italy (Coastal comfort and views)"
+                ],
+                Goat: [
+                    "The Cotswolds, England (Pastoral beauty and tranquility)", 
+                    "Kyoto, Japan (Traditional arts and refined beauty)",
+                    "Crete, Greece (Island life and slow living)",
+                    "Valparaiso, Chile (Colorful art and coastal food)"
+                ],
+                Pig: [
+                    "Seminyak, Bali, Indonesia (Indulgent food, spas, and warm climate)", 
+                    "Bora Bora, French Polynesia (Ultimate comfort island)",
+                    "The Riviera Maya, Mexico (Luxury resorts and serene beaches)",
+                    "Taipei, Taiwan (Incredible night markets and food culture)"
+                ],
+                default: [
+                    "A gourmet cooking retreat in Provence, France", 
+                    "Relaxing at a 5-star spa in the Caribbean (Barbados)",
+                    "Visiting a fine arts fair in London or Paris",
+                    "Exploring the vineyards of the Rhône Valley, France"
+                ]
+            },
+            Gemini: { // Mode: Social, Short-hop, City-Exploring
+                Rabbit: [
+                    "Berlin, Germany (Art, history, and underground scene)", 
+                    "Amsterdam, Netherlands (Flexible, bikeable city)",
+                    "Prague, Czechia (Literary history and youthful energy)",
+                    "Seville, Spain (Walkable streets and social gatherings)"
+                ],
+                Monkey: [
+                    "Bangkok, Thailand (Lively markets, quick discovery, social buzz)", 
+                    "Barcelona, Spain (Dynamic art and tapas scene)",
+                    "Buenos Aires, Argentina (Rich history and engaging locals)",
+                    "New York City, USA (Rapid transitions and endless activities)"
+                ],
+                Dog: [
+                    "Portland, Oregon, USA (Unique community and walkable neighborhoods)", 
+                    "Montreal, Canada (Bilingual culture and short hops)",
+                    "Edinburgh, Scotland (Festival scene and charming alleyways)",
+                    "San Francisco, USA (Diverse neighborhoods and fast technology)"
+                ],
+                default: [
+                    "Visiting multiple capital cities via a fast train in Europe (e.g., Benelux)", 
+                    "A local language exchange trip in Mexico City",
+                    "The bazaars of Istanbul, Turkey (Trading and chatting)",
+                    "Lisbon, Portugal (Hills, views, and historic conversation spots)"
+                ]
+            },
+            Cancer: { // Mode: Coastal, Intimate, Memory-Making
+                Goat: [
+                    "Nova Scotia, Canada (Cozy, simple coastal life)", 
+                    "Coastal villages in Ireland (Intimate, misty landscapes)",
+                    "Big Sur, California, USA (Rugged coastline and introspection)",
+                    "The Bay of Islands, New Zealand (Quiet, scenic maritime history)"
+                ],
+                Pig: [
+                    "Santorini, Greece (Warm, welcoming, beautiful coastline)", 
+                    "The Algarve, Portugal (Sun, seafood, and homely feel)",
+                    "Puerto Vallarta, Mexico (Traditional charm and warm beaches)",
+                    "Oahu, Hawaii (Relaxed atmosphere and natural beauty)"
+                ],
+                Snake: [
+                    "Kerala Backwaters, India (Seclusion and deep cultural immersion)", 
+                    "Hoi An, Vietnam (Riverside charm and personalized crafts)",
+                    "Venice, Italy (Intimate canals and timeless romance)",
+                    "Lake Como, Italy (Private villas and calm waters)"
+                ],
+                default: [
+                    "Renting a secluded cabin near a lake in the Pacific Northwest (Oregon/Washington)", 
+                    "A family trip to the Italian Riviera (Cinque Terre)",
+                    "The Outer Banks, North Carolina, USA (Secluded beach houses)",
+                    "The Fjords of Norway (Water, dramatic scale, and peace)"
+                ]
+            },
+            Leo: { // Mode: Vibrant, Stylish, High-Profile
+                Dragon: [
+                    "Dubai, UAE (Innovation, architecture, and luxury shopping)", 
+                    "Los Angeles, USA (The center of entertainment and style)",
+                    "Shanghai, China (Spectacular skyline and high-status venues)",
+                    "Monaco (High rollers and grand events)"
+                ],
+                Rooster: [
+                    "Paris, France (Impeccable style, fashion, and culture)", 
+                    "Milan, Italy (Design and high fashion)",
+                    "A high-end show in London's West End",
+                    "Vienna, Austria (Imperial history and grand culture)"
+                ],
+                Rat: [
+                    "New York City, USA (The theater, food, and vibrant city energy)", 
+                    "London, UK (High-profile events and social scene)",
+                    "Ibiza, Spain (Exclusive clubs and glamorous nightlife)",
+                    "Buenos Aires, Argentina (Passionate culture and vibrant energy)"
+                ],
+                default: [
+                    "Attending Carnival in Venice or Rio de Janeiro", 
+                    "A safari trip in Tanzania with high-end lodging (Serengeti)",
+                    "Hosting a stylish party in Miami Beach, Florida",
+                    "A private tour of a historical castle in France"
+                ]
+            },
+            Virgo: { // Mode: Wellness, Structured, Skill-Building
+                Ox: [
+                    "Kyoto, Japan (Traditional arts, meditation, and precise schedules)", 
+                    "A ceramics workshop in Oaxaca, Mexico (Focused craft)",
+                    "The Black Forest, Germany (Orderly hiking and nature)",
+                    "Taipei, Taiwan (Efficient transit and organized markets)"
+                ],
+                Rabbit: [
+                    "Geneva, Switzerland (Organized, clean, focused trips)", 
+                    "A silent retreat in the foothills of the Himalayas (Nepal)",
+                    "A structured diet and fitness retreat in Thailand",
+                    "Visiting botanical gardens in Kew, London"
+                ],
+                Dog: [
+                    "Volunteering in a community in rural Nepal", 
+                    "A focused language immersion course in Spain (Salamanca)",
+                    "A permaculture course in Tuscany, Italy",
+                    "The meticulous organization of Singapore"
+                ],
+                default: [
+                    "Wellness retreat in Tulum, Mexico", 
+                    "A detailed, self-guided tour of historical libraries and archives (Oxford)",
+                    "Exploring the systematic ruins of Rome, Italy",
+                    "A comprehensive cooking class specializing in complex techniques"
+                ]
+            },
+            Libra: { // Mode: Harmonious, Cultural, Beautiful
+                Rabbit: [
+                    "Vienna, Austria (Music, culture, and harmonious design)", 
+                    "Copenhagen, Denmark (Perfect balance and design)",
+                    "San Miguel de Allende, Mexico (Artistic and colorful balance)",
+                    "The Japanese Garden of Portland, Oregon, USA"
+                ],
+                Snake: [
+                    "Seville, Spain (Deep cultural beauty and passionate artistry)", 
+                    "Marrakech, Morocco (A blend of colors and senses)",
+                    "Isle of Capri, Italy (Classic beauty and social grace)",
+                    "A luxury art tour in Paris, France"
+                ],
+                Goat: [
+                    "Provence, France (Pastoral beauty, markets, and gentle climate)", 
+                    "The Greek Islands (Classic beauty and balance - Mykonos)",
+                    "Kyoto, Japan (Traditional gardens and refined tea culture)",
+                    "Waiheke Island, New Zealand (Vineyards and sea views)"
+                ],
+                default: [
+                    "Visiting major art galleries in Florence, Italy", 
+                    "A couples retreat in the vineyards of South Africa (Stellenbosch)",
+                    "A cruise through the Baltic Capitals (Aesthetic cities)",
+                    "Shopping and design exploration in Stockholm, Sweden"
+                ]
+            },
+            Scorpio: { // Mode: Transformative, Intense, Secluded
+                Dragon: [
+                    "Himalayas Trek (Powerful high-altitude physical and mental challenge)", 
+                    "Climbing Mount Fuji, Japan (Intense focus)",
+                    "The Valley of the Kings, Egypt (Deep history and mystery)",
+                    "Trans-Siberian Railway (Solitude and contemplation)"
+                ],
+                Snake: [
+                    "Transylvania, Romania (Deep history, mystery, and solitude)", 
+                    "Visiting a ghost town in Nevada, USA",
+                    "Pompeii, Italy (Fascinating ruins and intense history)",
+                    "A secluded diving resort in the Philippines"
+                ],
+                Tiger: [
+                    "Easter Island, Chile (Bold, mysterious exploration)", 
+                    "Diving the Great Blue Hole, Belize (Deep immersion)",
+                    "The Amazon Rainforest (Untamed and transformative nature)",
+                    "Visiting historical battlegrounds (Gettysburg, USA)"
+                ],
+                default: [
+                    "A deep-sea fishing expedition in the Atlantic", 
+                    "A solo retreat in a desert landscape like Namibia (Sossusvlei)",
+                    "Visiting the catacombs of Rome or Paris",
+                    "Studying psychology or occult history in London"
+                ]
+            },
+            Sagittarius: { // Mode: Grand, Expansive, Philosophical
+                Tiger: [
+                    "Cairo & The Pyramids, Egypt (Ancient history and grand scale)", 
+                    "The Gobi Desert, Mongolia (Vast, untamed land)",
+                    "The ancient ruins of Petra, Jordan (Grand scale and discovery)",
+                    "A challenging overland trip across South America"
+                ],
+                Horse: [
+                    "Australian Outback Road Trip (Expansive, wide-open spaces)", 
+                    "Travel across Siberia via the Trans-Siberian Railway",
+                    "Yellowstone National Park, USA (Vast landscapes and freedom)",
+                    "A multi-country adventure through Southeast Asia"
+                ],
+                Monkey: [
+                    "Istanbul, Turkey (A lively bridge between continents and cultures)", 
+                    "The Silk Road in Uzbekistan (Philosophical journey)",
+                    "Hanoi, Vietnam (Vibrant street life and quick learning)",
+                    "Mexico City, Mexico (Huge, diverse, and energetic)"
+                ],
+                default: [
+                    "Backpacking Southeast Asia with an open-ended ticket", 
+                    "A guided tour of astronomical observatories (Atacama Desert, Chile)",
+                    "Visiting a major university or philosophical conference (Cambridge)",
+                    "An exploration of African safaris (Kenya or Botswana)"
+                ]
+            },
+            Capricorn: { // Mode: Structured, History, Challenge
+                Dragon: [
+                    "Swiss Alps (Structured, challenging, goal-oriented hiking)", 
+                    "Climbing Kilimanjaro, Tanzania",
+                    "Seoul, South Korea (Highly organized, modern efficiency)",
+                    "Shanghai, China (Ambitious architecture and business)"
+                ],
+                Ox: [
+                    "Rome, Italy (Ancient structures, history, and traditional legacy)", 
+                    "The Great Wall of China (Monumental challenge)",
+                    "A historical architecture tour of Chicago, USA",
+                    "St. Petersburg, Russia (Imperial formality and grandeur)"
+                ],
+                Rooster: [
+                    "London, UK (Institutions, detailed history, and structured travel)", 
+                    "A detailed historical tour of Washington D.C.",
+                    "Tokyo, Japan (Efficiency, order, and precise logistics)",
+                    "Studying finance or law in New York City"
+                ],
+                default: [
+                    "Visiting the site of a past civilization, like Angkor Wat, Cambodia", 
+                    "A historical architecture tour of Chicago",
+                    "Walking the Camino de Santiago (Long, structured goal)",
+                    "Skiing the most challenging black runs in the French Alps"
+                ]
+            },
+            Aquarius: { // Mode: Unique, Humanitarian, Tech-Forward
+                Rat: [
+                    "Tel Aviv, Israel (Startup culture and innovative networking)", 
+                    "Visiting a high-tech conference in Shenzhen, China",
+                    "Silicon Valley, USA (Innovation and future tech tours)",
+                    "A multi-cultural festival in London or Berlin"
+                ],
+                Monkey: [
+                    "Iceland (Unique geology, social structure, and energy sources)", 
+                    "A research trip to Antarctica or Greenland",
+                    "Amsterdam, Netherlands (Progressive social policies)",
+                    "Visiting the CERN research facility in Switzerland"
+                ],
+                Rabbit: [
+                    "Helsinki, Finland (Innovative design and social welfare focus)", 
+                    "Participating in a global relief effort in South America",
+                    "Copenhagen, Denmark (Sustainable design and living)",
+                    "Visiting a co-housing community in Germany"
+                ],
+                default: [
+                    "Visiting Burning Man (community focus)", 
+                    "Exploring a city entirely via public transit and tech maps (Hong Kong)",
+                    "Attending the UN Headquarters in New York or Geneva",
+                    "Exploring a remote, geologically unique site (Galapagos Islands)"
+                ]
+            },
+            Pisces: { // Mode: Soulful, Meditative, Island Escape
+                Snake: [
+                    "Koh Lanta, Thailand (Secluded, peaceful island life)", 
+                    "The Maldives (Ethereal overwater bungalows)",
+                    "The Amazon Rainforest (Mystical, vast nature)",
+                    "Kyoto, Japan (Deep spiritual immersion)"
+                ],
+                Goat: [
+                    "Isle of Skye, Scotland (Misty, ethereal, beautiful nature)", 
+                    "A remote cabin in the Faroe Islands",
+                    "A quiet beach town in the Philippines (El Nido)",
+                    "The temples of Lhasa, Tibet (Spiritual sanctuary)"
+                ],
+                Rabbit: [
+                    "Kyoto, Japan (Meditative temples and spiritual quietude)", 
+                    "Visiting sacred sites in Sedona, Arizona",
+                    "A yoga retreat on the coast of Costa Rica (Emphasis on flow)",
+                    "Rishikesh, India (Spiritual hub and river Ganges)"
+                ],
+                default: [
+                    "Sailing the Mediterranean Sea (Dreamy water travel)", 
+                    "A yoga retreat on the coast of Costa Rica",
+                    "Exploring the underwater sculpture parks (Cancun, Mexico)",
+                    "A photography tour of misty, ethereal forests (Pacific Northwest)"
+                ]
             }
         };
 
+        function getRecommendedDestinations(sunSign, chineseZodiac) {
+            const signDestinations = DESTINATIONS[sunSign];
+            if (signDestinations && signDestinations[chineseZodiac]) {
+                return signDestinations[chineseZodiac];
+            }
+            // Fallback to general sign destinations if specific combo isn't defined
+            return signDestinations.default || [];
+        }
+
+
+        function generateTravelPlan(sunSign, chineseZodiac) {
+            // 1. Sun Sign Influence (Focuses on the HOW/WHY of the trip - Western Personality)
+            const sunDescriptions = {
+                Aries: "As a pioneering Aries, your Sun Sign demands a journey of **action and spontaneity**. You need physical engagement, challenge, and the freedom to start new things.",
+                Taurus: "Your sensual Taurus Sun Sign requires a journey focused on **comfort, luxury, and the senses**. Quality food, beautiful environments, and deep relaxation are essential.",
+                Gemini: "Your social Gemini spirit thrives on a trip involving **short-hops, lively cities, and constant communication**. Variety, movement, and social interaction are key.",
+                Cancer: "Your sensitive Cancer Sun Sign needs a retreat focused on **intimacy, memory-making, and coastal serenity**. Seek places that feel like a second home or have deep historical roots.",
+                Leo: "The dramatic Leo in you demands a journey that is **high-profile, vibrant, and stylish**. Look for places where you can be celebrated, or where the culture is visibly spectacular.",
+                Virgo: "The meticulous Virgo requires a journey focused on **wellness, structure, or skill-building**. You benefit from a focused trip, perhaps a retreat with a clear, constructive goal.",
+                Libra: "The harmonious Libra will find beauty in an escape that is **culturally rich, balanced, and aesthetically pleasing**. Your trip must emphasize social elegance and visual harmony.",
+                Scorpio: "Your transformative Scorpio nature will thrive on an experience that is **intense, secluded, or deep**. Go deep—whether through physical challenge, unraveling mystery, or profound solitude.",
+                Sagittarius: "Your expansive Sagittarian nature needs an expedition that is **grand, philosophical, and long-distance**. Seek vast landscapes, open-ended learning, and cultural immersion.",
+                Capricorn: "The goal-oriented Capricorn needs a journey that is **structured, rich in history, or monumental**. Consider destinations with legacy, high ambition, or organizational excellence.",
+                Aquarius: "Your unique Aquarian soul requires a destination that is **unique, tech-forward, or humanitarian**. Seek out places with cutting-edge innovation or progressive social structures.",
+                Pisces: "The dreamy Pisces needs an escape that is **soulful, meditative, and ethereal**. Find a water-centric landscape that encourages quiet contemplation and spiritual renewal."
+            };
+
+            // 2. Chinese Zodiac Influence (Focuses on the WHAT/FOCUS of the trip - Goal)
+            const animalDescriptions = {
+                Rat: "The **Rat** influences your trip to focus on **networking and vibrant city life**, encouraging connections and quick-witted exploration in urban hubs.",
+                Ox: "The **Ox** guides you toward **stability, tradition, and physical endurance**. You thrive in settings with deep historical roots or grounded, natural order.",
+                Tiger: "The **Tiger** highlights **bold explorations, historical conquests, and untamed natural areas**, fueling courage and adventure on a large scale.",
+                Rabbit: "The **Rabbit** emphasizes **artistic quiet spaces or hidden gems**, fostering peace and requiring flexibility to discover charming, less-traveled paths.",
+                Dragon: "The **Dragon** suggests **powerful, high-altitude landscapes and innovation**, asserting leadership and success in environments that push boundaries.",
+                Snake: "The **Snake** directs you toward **seclusion and deep cultural immersion**, aiding introspection and appreciation for intense, subtle beauty and mystery.",
+                Horse: "The **Horse** means your journey should be **expansive, fast-paced, and full of freedom**, best experienced via a scenic road trip or major global event.",
+                Goat: "The **Goat** roots your travel in **simple living and beautiful, pastoral settings**, seeking harmony, artistry, and a gentle climate.",
+                Monkey: "The **Monkey** makes your trip about **lively markets, quick discovery, and witty social dynamics**, satisfying curiosity and promoting quick learning.",
+                Rooster: "The **Rooster** makes impeccable **detail and self-improvement** key. Seek destinations known for high-quality organization or professional excellence.",
+                Dog: "The **Dog** focuses on destinations that require **loyalty to a single community or scenic walks**, promoting strong connection and reliable comfort.",
+                Pig: "The **Pig** ensures your journey is about **indulgent food and warm, welcoming climates**, prioritizing comfort, pleasure, and effortless enjoyment."
+            };
+
+            // 3. Final Combined Advice
+            const finalAdvice = {
+                Aries: `Given this combination, your ideal itinerary requires you to prioritize **physical challenge** and **spontaneous freedom** for maximum renewal.`,
+                Taurus: `Your optimal itinerary means seeking out spaces that offer **natural beauty, luxurious comfort, and deep sensual satisfaction** in the arts or cuisine.`,
+                Gemini: `This combination suggests a trip where you can **move quickly between diverse social scenes**—flexible logistics and continuous mental stimulation are paramount.`,
+                Cancer: `Your journey should be a dedicated time to **connect with deep history or loved ones** in a cozy, water-centric setting that encourages emotional security.`,
+                Leo: `The path forward demands a trip that is **visually striking and allows for self-expression**, involving high-energy cultural events or grand, photogenic destinations.`,
+                Virgo: `Your trip should be a constructive endeavor; seek out a location that enables **organized wellness, practical skill mastery, or focused research** in an orderly setting.`,
+                Libra: `This combination requires a pursuit of **aesthetic perfection and harmonious social settings**. Choose a place known for balance, beauty, and refined culture.`,
+                Scorpio: `Your ideal itinerary involves a **deep, transformative dive** into a solitary or mysterious location, pushing your mental and emotional boundaries.`,
+                Sagittarius: `The cosmos suggests a need for **grand scale, long distances, and philosophical learning**. Book an open-ended journey that broadens your global perspective.`,
+                Capricorn: `You must seek out **monumental achievements, structured challenges, or historical legacies**. Your itinerary should have clear goals and a sense of enduring purpose.`,
+                Aquarius: `Your journey should be focused on the **unique and the unconventional**. Seek innovative urban environments or places where you can observe distinct social and technological progress.`,
+                Pisces: `The best journey for you will be a gentle escape focused on **water, solitude, and spiritual renewal**, allowing you to merge with the ethereal beauty of nature.`
+            };
+
+            return {
+                sunDescription: sunDescriptions[sunSign],
+                animalDescription: animalDescriptions[chineseZodiac],
+                finalAdvice: finalAdvice[sunSign]
+            };
+        }
+
+        // --- UI & Flow Control ---
+
+        function showMessage(msg, isError = true) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = msg;
+            // Use orange shades for non-error messages too, for consistency
+            const classes = isError ? 'text-red-700 bg-red-100' : 'text-orange-700 bg-orange-100';
+            messageBox.className = `p-4 text-sm rounded-lg mt-4 ${classes}`;
+            messageBox.classList.remove('hidden');
+        }
+
+        function displayResult(sunSign, chineseZodiac, planData, destinations) {
+            document.getElementById('sunSign').textContent = sunSign;
+            document.getElementById('chineseZodiac').textContent = chineseZodiac;
+
+            const travelPlanElement = document.getElementById('travelPlan');
+            
+            // Structured HTML output to clearly delineate the two influences
+            travelPlanElement.innerHTML = `
+                <p class="mb-3"><strong>Sun Sign (${sunSign}):</strong> ${planData.sunDescription}</p>
+                <p class="mb-3"><strong>Animal Sign (${chineseZodiac}):</strong> ${planData.animalDescription}</p>
+                <p class="mt-4 p-3 bg-orange-100 border-l-4 border-orange-500 text-gray-700">
+                    <strong>Final Itinerary Advice:</strong> ${planData.finalAdvice}
+                </p>
+            `;
+
+
+            const destinationsList = document.getElementById('destinationsList');
+            destinationsList.innerHTML = '';
+            destinations.forEach(dest => {
+                const li = document.createElement('li');
+                li.textContent = dest;
+                destinationsList.appendChild(li);
+            });
+
+
+            document.getElementById('inputForm').classList.add('hidden');
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('messageBox').classList.add('hidden');
+        }
+
+        function calculateZodiac() {
+            const dateInput = document.getElementById('birthDate').value;
+
+            if (!dateInput) {
+                showMessage("Please enter your full date of birth.");
+                return;
+            }
+
+            try {
+                // Ensure correct date parsing by adding time
+                const date = new Date(dateInput + 'T00:00:00'); 
+                const month = date.getMonth() + 1; // 1-12
+                const day = date.getDate();
+                const year = date.getFullYear();
+
+                if (isNaN(year) || year < 1900) {
+                    showMessage("Invalid date entered. Please use a valid YYYY-MM-DD format (year after 1900).");
+                    return;
+                }
+
+                // 1. Calculate Western Sun Sign
+                const sunSign = getSunSign(month, day);
+
+                // 2. Calculate Chinese Zodiac Animal
+                const chineseZodiac = generateChineseZodiac(year);
+
+                // 3. Generate Combined Travel Plan
+                const planData = generateTravelPlan(sunSign, chineseZodiac);
+                
+                // 4. Get Recommended Destinations
+                const destinations = getRecommendedDestinations(sunSign, chineseZodiac);
+
+                displayResult(sunSign, chineseZodiac, planData, destinations);
+
+            } catch (e) {
+                showMessage("An error occurred during calculation. Please check the date format.");
+                console.error(e);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('birthDate').value = '';
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('inputForm').classList.remove('hidden');
+            document.getElementById('messageBox').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
