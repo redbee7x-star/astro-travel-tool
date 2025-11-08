@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zodiac Decan Travel Guide</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Follow Your Stars: A Friendly Guide to Astrocartography & Zodiac Travel</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'primary': '#9333EA', // Purple
-                        'secondary': '#C084FC',
-                        'dark-bg': '#171717', // Neutral 900
-                        'dark-card': '#262626', // Neutral 800
+                        'primary': '#FF8C00', // Orange primary accent
+                        'secondary': '#FFA700', // Lighter orange secondary accent
+                        'light-bg': '#F8F8F8', // Off-white background
+                        'light-card': '#FFFFFF', // White card background
+                        'dark-text': '#333333', // Dark text for readability on light background
+                        'light-gray-text': '#555555', // Slightly lighter gray for secondary text
+                        'light-border': '#E0E0E0', // Light border for cards
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -25,89 +27,87 @@
     </script>
     <style>
         body {
-            background-color: #171717;
+            background-color: #F8F8F8; /* Light background */
             font-family: 'Inter', sans-serif;
-            color: #E5E7EB;
+            color: #333333; /* Dark text */
         }
         .card {
-            background-color: #262626;
-            border: 1px solid #404040;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            background-color: #FFFFFF; /* White card */
+            border: 1px solid #E0E0E0; /* Light border */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); /* Softer shadow */
         }
         .gradient-text {
-            background-image: linear-gradient(to right, #C084FC, #9333EA);
+            background-image: linear-gradient(to right, #FFA700, #FF8C00); /* Orange gradient */
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .decan-info {
             transition: all 0.3s ease-in-out;
+            border-color: #FF8C00; /* Orange border for result card */
+        }
+        input[type="date"] {
+            color: #333333; /* Ensure date input text is dark */
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.3); /* Adjust icon color for light background */
         }
     </style>
 </head>
 
 <body class="p-4 md:p-8 min-h-screen flex items-center justify-center">
 
-    <!-- Main Application Container -->
-    <div id="appContainer" class="max-w-4xl w-full hidden">
+    <!-- Main Application Container --><div id="appContainer" class="max-w-4xl w-full hidden">
 
         <header class="text-center mb-10">
-            <h1 class="text-5xl font-extrabold gradient-text tracking-tight">Decan Destiny Planner</h1>
-            <p class="text-gray-400 mt-2 text-xl">Find travel energy tailored to your specific Zodiac Decan.</p>
+            <h1 class="text-5xl font-extrabold gradient-text tracking-tight">Follow Your Stars: A Friendly Guide</h1>
+            <p class="text-dark-text mt-2 text-xl">Astrocartography & Zodiac Travel</p>
         </header>
 
         <div class="card p-6 md:p-8 rounded-xl space-y-6">
             
-            <!-- Input: Birth Date -->
-            <div>
-                <label for="birthDate" class="block text-lg font-semibold mb-3 text-white">1. Select Your Birth Date:</label>
-                <!-- Default date set to March 23, 1983 (Aries Decan 1) to test the fix -->
+            <!-- Input: Birth Date --><div>
+                <label for="birthDate" class="block text-lg font-semibold mb-3 text-dark-text">1. Select Your Birth Date:</label>
                 <input type="date" id="birthDate" value="1983-03-23" required 
-                       class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:ring-primary focus:border-primary transition duration-150">
+                       class="w-full p-3 rounded-lg bg-gray-100 text-dark-text border border-light-border focus:ring-primary focus:border-primary transition duration-150">
             </div>
 
-            <!-- Process Button -->
-            <button id="processButton" class="w-full py-3 px-4 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition duration-200 shadow-lg mt-4">
+            <!-- Process Button --><button id="processButton" class="w-full py-3 px-4 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition duration-200 shadow-lg mt-4">
                 Reveal My Travel Profile
             </button>
 
-            <!-- Output: Decan Result -->
-            <div id="resultCard" class="decan-info p-5 rounded-lg border-2 border-primary hidden space-y-4">
-                <h2 class="text-3xl font-bold text-white mb-2">
+            <!-- Output: Decan Result --><div id="resultCard" class="decan-info p-5 rounded-lg border-2 hidden space-y-4">
+                <h2 class="text-3xl font-bold text-dark-text mb-2">
                     Your Energy Profile: <span id="signName" class="gradient-text"></span>
                 </h2>
                 
-                <p class="text-xl font-medium text-gray-300">
+                <p class="text-xl font-medium text-light-gray-text">
                     <span class="text-primary font-bold">Decan Influence:</span> 
                     <span id="decanName"></span>
                 </p>
 
-                <!-- Energy Summary -->
-                <div>
-                    <h3 class="text-2xl font-semibold mt-6 mb-2 text-primary border-b border-gray-700 pb-1">Primary Travel Energy</h3>
-                    <p id="decanEnergy" class="text-gray-300 leading-relaxed"></p>
+                <!-- Energy Summary --><div>
+                    <h3 class="text-2xl font-semibold mt-6 mb-2 text-primary border-b border-light-border pb-1">Primary Travel Energy</h3>
+                    <p id="decanEnergy" class="text-dark-text leading-relaxed"></p>
                 </div>
 
-                <!-- Destination Recommendations -->
-                <div>
-                    <h3 class="text-2xl font-semibold mt-6 mb-2 text-primary border-b border-gray-700 pb-1">Recommended Destinations</h3>
-                    <ul id="destinationList" class="list-disc list-inside space-y-2 pl-4 text-gray-300">
-                        <!-- Destinations will be populated here -->
-                    </ul>
+                <!-- Destination Recommendations --><div>
+                    <h3 class="text-2xl font-semibold mt-6 mb-2 text-primary border-b border-light-border pb-1">Recommended Destinations</h3>
+                    <ul id="destinationList" class="list-disc list-inside space-y-2 pl-4 text-dark-text">
+                        <!-- Destinations will be populated here --></ul>
                 </div>
             </div>
 
-            <div id="initialMessage" class="text-center p-6 text-gray-400 italic">
+            <div id="initialMessage" class="text-center p-6 text-light-gray-text italic">
                 Enter your birth date and click 'Reveal' to see your unique travel profile.
             </div>
         </div>
     </div>
     
-    <!-- Access Gate Modal -->
-    <div id="accessGate" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center">
+    <!-- Access Gate Modal --><div id="accessGate" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
         <div class="card p-8 rounded-xl max-w-md text-center space-y-6">
             <h2 id="gateTitle" class="text-3xl font-bold gradient-text">Access Locked</h2>
-            <p id="gateMessage" class="text-lg text-gray-300">This specialized tool requires an active subscription.</p>
-            <p class="text-sm text-gray-400">By clicking below, you confirm you have a valid, active subscription to our premium content.</p>
+            <p id="gateMessage" class="text-lg text-light-gray-text">This specialized tool requires an active subscription.</p>
+            <p class="text-sm text-gray-500">By clicking below, you confirm you have a valid, active subscription to our premium content.</p>
             <button id="unlockButton" class="w-full py-3 px-4 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition duration-200 shadow-lg">
                 I Confirm My Subscription & Unlock
             </button>
@@ -117,9 +117,10 @@
 
 
     <script>
-        // --- SECURITY & ACCESS CONTROL CONFIGURATION (Unchanged) ---
+        // --- SECURITY & ACCESS CONTROL CONFIGURATION ---
         const REQUIRED_DOMAIN = 'myastrowebsite.com';
         const SUBSCRIBED_FLAG = 'astroDecanSubscribed';
+        const EMBEDDING_DOMAIN = 'YOUR_EMBEDDING_DOMAIN_HERE'; // !!! IMPORTANT: CHANGE THIS !!!
         // -----------------------------------------------------------
 
         // Data Structure: Zodiac Signs and Decan Interpretations
@@ -302,7 +303,7 @@
             document.getElementById('decanEnergy').textContent = profile.decanProfile.energy;
             
             const list = document.getElementById('destinationList');
-            list.innerHTML = profile.decanProfile.destinations.map(dest => `<li><span class="font-bold text-white">${dest.split('(')[0].trim()}</span> ${dest.includes('(') ? '(' + dest.split('(')[1] : ''}</li>`).join('');
+            list.innerHTML = profile.decanProfile.destinations.map(dest => `<li><span class="font-bold text-dark-text">${dest.split('(')[0].trim()}</span> ${dest.includes('(') ? '(' + dest.split('(')[1] : ''}</li>`).join('');
 
             document.getElementById('initialMessage').classList.add('hidden');
             document.getElementById('resultCard').classList.remove('hidden');
@@ -330,18 +331,25 @@
             const domainWarning = document.getElementById('domainWarning');
             const currentHost = window.location.hostname;
             
-            let isAllowedDomain = currentHost === REQUIRED_DOMAIN || currentHost.includes('github.io') || currentHost === 'localhost' || currentHost === '127.0.0.1';
-            let isSubscribed = localStorage.getItem(SUBSCRIBED_FLAG) === 'true';
-
+            // Check if the current host matches any allowed criteria
+            let isAllowedDomain = currentHost === REQUIRED_DOMAIN 
+                               || currentHost.includes('github.io') 
+                               || currentHost === 'localhost' 
+                               || currentHost === '127.0.0.1'
+                               // ADDED FIX: Allows the user's specific embedding domain
+                               || currentHost === EMBEDDING_DOMAIN; 
+            
             if (!isAllowedDomain) {
                 gate.classList.remove('hidden');
                 document.getElementById('gateTitle').textContent = "Domain Mismatch";
                 document.getElementById('gateMessage').textContent = "This tool can only be accessed on the approved website domain to protect the content. Please use the original embedded page.";
                 document.getElementById('unlockButton').classList.add('hidden');
                 domainWarning.classList.remove('hidden');
-                domainWarning.textContent = `Error: App accessed from unauthorized domain: ${currentHost}. Required: ${REQUIRED_DOMAIN}`;
+                domainWarning.textContent = `Error: App accessed from unauthorized domain: ${currentHost}. Required: ${REQUIRED_DOMAIN} or ${EMBEDDING_DOMAIN}`;
                 return false;
             }
+
+            let isSubscribed = localStorage.getItem(SUBSCRIBED_FLAG) === 'true';
 
             if (isSubscribed) {
                 gate.classList.add('hidden');
@@ -357,6 +365,8 @@
         function handleUnlock() {
             localStorage.setItem(SUBSCRIBED_FLAG, 'true');
             checkAccess();
+            // Re-bind the click handler after unlocking, if necessary
+            document.getElementById('processButton').addEventListener('click', calculateProfile);
         }
 
         // --- Event Listeners and Setup ---
@@ -364,6 +374,7 @@
             document.getElementById('unlockButton').addEventListener('click', handleUnlock);
             
             if (checkAccess()) {
+                // Only attach the click listener if access is granted initially
                 document.getElementById('processButton').addEventListener('click', calculateProfile);
                 calculateProfile();
             }
