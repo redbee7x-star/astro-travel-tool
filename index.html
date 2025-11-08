@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zodiac Decan Travel Guide</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#9333EA', // Purple
+                        'secondary': '#C084FC',
+                        'dark-bg': '#171717', // Neutral 900
+                        'dark-card': '#262626', // Neutral 800
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #171717;
+            font-family: 'Inter', sans-serif;
+            color: #E5E7EB;
+        }
+        .card {
+            background-color: #262626;
+            border: 1px solid #404040;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .gradient-text {
+            background-image: linear-gradient(to right, #C084FC, #9333EA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .decan-info {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8 min-h-screen flex items-center justify-center">
+
+    <!-- Main Application Container -->
+    <div id="appContainer" class="max-w-4xl w-full hidden">
+
+        <header class="text-center mb-10">
+            <h1 class="text-5xl font-extrabold gradient-text tracking-tight">Decan Destiny Planner</h1>
+            <p class="text-gray-400 mt-2 text-xl">Find travel energy tailored to your specific Zodiac Decan.</p>
+        </header>
+
+        <div class="card p-6 md:p-8 rounded-xl space-y-8">
+            
+            <!-- Input: Birth Date -->
+            <div>
+                <label for="birthDate" class="block text-lg font-semibold mb-3 text-white">1. Select Your Birth Date:</label>
+                <input type="date" id="birthDate" value="1990-01-01" required 
+                       class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:ring-primary focus:border-primary transition duration-150">
+            </div>
+
+            <!-- Output: Decan Result -->
+            <div id="resultCard" class="decan-info p-5 rounded-lg border-2 border-primary hidden space-y-4">
+                <h2 class="text-3xl font-bold text-white mb-2">
+                    Your Energy Profile: <span id="signName" class="gradient-text"></span>
+                </h2>
+                
+                <p class="text-xl font-medium text-gray-300">
+                    <span class="text-primary font-bold">Decan Influence:</span> 
+                    <span id="decanName"></span>
+                </p>
+
+                <!-- Energy Summary -->
+                <div>
+                    <h3 class="text-2xl font-semibold mt-6 mb-2 text-primary border-b border-gray-700 pb-1">Primary Travel Energy</h3>
+                    <p id="decanEnergy" class="text-gray-300 leading-relaxed"></p>
+                </div>
+
+                <!-- Destination Recommendations -->
+                <div>
+                    <h3 class="text-2xl font-semibold mt-6 mb-2 text-primary border-b border-gray-700 pb-1">Recommended Destinations</h3>
+                    <ul id="destinationList" class="list-disc list-inside space-y-2 pl-4 text-gray-300">
+                        <!-- Destinations will be populated here -->
+                    </ul>
+                </div>
+            </div>
+
+            <div id="initialMessage" class="text-center p-6 text-gray-400 italic">
+                Select your birth date above to reveal your unique travel profile.
+            </div>
+        </div>
+    </div>
+    
+    <!-- Access Gate Modal -->
+    <div id="accessGate" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center">
+        <div class="card p-8 rounded-xl max-w-md text-center space-y-6">
+            <h2 id="gateTitle" class="text-3xl font-bold gradient-text">Access Locked</h2>
+            <p id="gateMessage" class="text-lg text-gray-300">This specialized tool requires an active subscription.</p>
+            <p class="text-sm text-gray-400">By clicking below, you confirm you have a valid, active subscription to our premium content.</p>
+            <button id="unlockButton" class="w-full py-3 px-4 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition duration-200 shadow-lg">
+                I Confirm My Subscription & Unlock
+            </button>
+            <p id="domainWarning" class="text-xs text-red-500 hidden"></p>
+        </div>
+    </div>
+
+
+    <script>
+        // --- SECURITY & ACCESS CONTROL CONFIGURATION ---
+        // !!! IMPORTANT: CHANGE THIS TO YOUR ACTUAL WEBSITE DOMAIN !!!
+        const REQUIRED_DOMAIN = 'myastrowebsite.com';
+        // !!! DO NOT DEPLOY WITHOUT CHANGING THE DOMAIN ABOVE !!!
+        
+        const SUBSCRIBED_FLAG = 'astroDecanSubscribed';
+        // -----------------------------------------------------------
+
+        // Data Structure: Zodiac Signs and Decan Interpretations
+        const ZODIAC_DATA = [
+            // Note: Each sign covers 30 degrees. Decans are 10 degrees each.
+            // 0-9 deg: Decan 1 (Primary influence)
+            // 10-19 deg: Decan 2 (Secondary influence)
+            // 20-29 deg: Decan 3 (Tertiary influence)
+            {
+                sign: "Aries", range: [20, 50], // Mar 21 - Apr 19 (approx)
+                decan1: { ruler: "Mars (Aries)", energy: "Pure Action & Initiation. Seek high-energy environments, places of competition, and rugged terrain. Ideal for solo travel, intense physical activity, and new beginnings.", destinations: ["Patagonia (Argentina/Chile)", "Las Vegas (USA)", "Northern Italy (Adrenaline Sports)"] },
+                decan2: { ruler: "Sun (Leo)", energy: "Leadership & Visibility. Travel for luxury, culture, and places where you can shine, perform, or be at the center of attention. Good for public speaking or creative projects.", destinations: ["Paris (France)", "New York City (USA)", "Dubai (UAE)"] },
+                decan3: { ruler: "Venus (Sagittarius)", energy: "Spiritual Passion & Broad Horizons. Perfect for travel that expands the mind, involves higher learning, or explores ancient philosophies and foreign cultures.", destinations: ["Machu Picchu (Peru)", "Kyoto (Japan)", "Bali (Indonesia)"] }
+            },
+            {
+                sign: "Taurus", range: [50, 80], // Apr 20 - May 20 (approx)
+                decan1: { ruler: "Venus (Taurus)", energy: "Sensual Comfort & Natural Beauty. Seek places known for exquisite food, fine art, slow pace, and deep connection to nature. Focus on luxury relaxation and grounding.", destinations: ["Tuscany (Italy)", "Napa Valley (USA)", "Bordeaux (France)"] },
+                decan2: { ruler: "Mercury (Virgo)", energy: "Productivity & Practicality. Travel to places where you can focus on healing, work, or detailed study. Excellent for organizing retreats, health check-ups, or vocational trips.", destinations: ["Zurich (Switzerland)", "San Francisco (USA) (Tech/Wellness)", "The English Countryside"] },
+                decan3: { ruler: "Saturn (Capricorn)", energy: "Endurance & Legacy. Destinations that challenge you, involve working with history, or establishing long-term goals. Mountains and places of great tradition are favored.", destinations: ["Rocky Mountains (USA/Canada)", "Rome (Italy)", "Berlin (Germany)"] }
+            },
+            {
+                sign: "Gemini", range: [80, 110], // May 21 - Jun 20 (approx)
+                decan1: { ruler: "Mercury (Gemini)", energy: "Communication & Quick Movement. Best for places with vibrant social scenes, bustling markets, or where you need to learn a new language or skill. Short trips are favored.", destinations: ["London (UK)", "Hong Kong (China)", "Barcelona (Spain)"] },
+                decan2: { ruler: "Jupiter (Libra)", energy: "Relationships & Intellectual Expansion. Travel focused on diplomatic meetings, collaborative projects, or finding balance and justice. Look for places with renowned universities or vibrant social justice movements.", destinations: ["Geneva (Switzerland)", "Toronto (Canada)", "Boston (USA)"] },
+                decan3: { ruler: "Mars (Aquarius)", energy: "Innovation & Group Action. Seek communities focused on technology, social reform, or unique, cutting-edge art. Ideal for large festivals, conventions, or humanitarian work.", destinations: ["Tokyo (Japan)", "Burning Man (USA - Group Focus)", "Silicon Valley (USA)"] }
+            },
+            {
+                sign: "Cancer", range: [110, 140], // Jun 21 - Jul 22 (approx)
+                decan1: { ruler: "Moon (Cancer)", energy: "Home & Nurturing. Destinations that feel like a sanctuary, near water, or where you can connect with family history and deep emotion. Focus on rest and healing.", destinations: ["The Greek Islands", "Coastal Maine (USA)", "Lakeside Retreats (Worldwide)"] },
+                decan2: { ruler: "Pluto (Scorpio)", energy: "Transformation & Intensity. Travel for deep psychological work, uncovering secrets, or intense spiritual experiences. Seek places with historical mysteries or geothermal activity.", destinations: ["New Orleans (USA)", "Iceland (Volcanic Areas)", "Transylvania (Romania)"] },
+                decan3: { ruler: "Neptune (Pisces)", energy: "Imagination & Spirituality. Ideal for places associated with creative arts, meditation, or places where the boundary between worlds feels thin. Coastal and misty areas are favored.", destinations: ["Ireland (Coastal)", "Goa (India)", "Santorini (Greece)"] }
+            },
+            {
+                sign: "Leo", range: [140, 170], // Jul 23 - Aug 22 (approx)
+                decan1: { ruler: "Sun (Leo)", energy: "Creative Expression & Royal Treatment. Travel that involves performance, art, or experiencing grand, historic splendor. You need warmth, drama, and appreciation.", destinations: ["Los Angeles (Hollywood)", "Monaco", "Versailles (France)"] },
+                decan2: { ruler: "Jupiter (Sagittarius)", energy: "High Adventure & Optimism. Travel for grand, expansive experiences, large-scale exploration, and connecting with global cultures. Think wide-open spaces and joyful pursuits.", destinations: ["African Safari (Kenya/Tanzania)", "The Andes Mountains", "Rio de Janeiro (Brazil)"] },
+                decan3: { ruler: "Mars (Aries)", energy: "Competitive Drive & Self-Assertion. Destinations that require courage, physical challenge, or places where you can lead a group project. Volcanic areas and places of dynamic growth.", destinations: ["Mount Fuji (Japan)", "Shanghai (China - Business)", "Australia (Outdoor Challenges)"] }
+            },
+            {
+                sign: "Virgo", range: [170, 200], // Aug 23 - Sep 22 (approx)
+                decan1: { ruler: "Mercury (Virgo)", energy: "Health & Organization. Seek wellness retreats, places for detailed study (e.g., historical archives), or environments focused on service. Perfect for eco-tourism or digital nomad setup.", destinations: ["Copenhagen (Denmark - Efficiency)", "Costa Rica (Eco-tourism)", "Ojai (California - Wellness)"] },
+                decan2: { ruler: "Saturn (Capricorn)", energy: "Structure & Discipline. Destinations that involve hard work, mastering a craft, or connecting with institutions and government. Think historical capitals and academic centers.", destinations: ["Washington D.C. (USA)", "London (UK)", "A Monastery (Tibet/Nepal)"] },
+                decan3: { ruler: "Venus (Taurus)", energy: "Artisan Skill & Earthly Pleasures. Focus on mastering an artistic skill, slow travel, or visiting places famous for crafts, pottery, or textile production. Deeply sensual experiences.", destinations: ["Florence (Italy)", "Marrakech (Morocco)", "Kyushu (Japan - Ceramics)"] }
+            },
+            {
+                sign: "Libra", range: [200, 230], // Sep 23 - Oct 22 (approx)
+                decan1: { ruler: "Venus (Libra)", energy: "Harmony & Partnership. Ideal for travel with a spouse or partner. Seek places known for beauty, diplomacy, and balanced social life. Artistic elegance is key.", destinations: ["Vienna (Austria)", "Venice (Italy)", "Buenos Aires (Argentina)"] },
+                decan2: { ruler: "Uranus (Aquarius)", energy: "Freedom & Intellectual Excitement. Destinations that are unconventional, modern, or focus on social equity and technological breakthroughs. Good for meeting new kinds of people.", destinations: ["Reykjavik (Iceland)", "Amsterdam (Netherlands)", "Portland (Oregon, USA)"] },
+                decan3: { ruler: "Mercury (Gemini)", energy: "Social Buzz & Lightheartedness. Travel for meeting many people, attending lighthearted events, or simple pleasure trips that don't require heavy emotional investment.", destinations: ["Miami Beach (USA)", "Tel Aviv (Israel)", "Ibiza (Spain)"] }
+            },
+            {
+                sign: "Scorpio", range: [230, 260], // Oct 23 - Nov 21 (approx)
+                decan1: { ruler: "Pluto (Scorpio)", energy: "Deep Transformation & Mystery. Seek destinations that challenge your limits, involve intense research, or are associated with the underworld or ancient rituals. Powerful, healing waters.", destinations: ["Mexico City (Mexico)", "Sicily (Italy)", "Chernobyl (Ukraine - History)"] },
+                decan2: { ruler: "Neptune (Pisces)", energy: "Spiritual Surrender & Escapism. Perfect for deep retreats, places where you can lose yourself in the vastness of the ocean or the quiet of a monastery. Focus on dreams and healing.", destinations: ["Kerala (India)", "A Remote Caribbean Island", "The Amazon Rainforest"] },
+                decan3: { ruler: "Moon (Cancer)", energy: "Emotional Depth & Security. Travel to reconnect with roots, resolve deep family issues, or seek safe, deeply comforting environments. Coastal homes or quiet islands.", destinations: ["A Private Villa in Cornwall (UK)", "Malta", "Your Ancestral Homeland"] }
+            },
+            {
+                sign: "Sagittarius", range: [260, 290], // Nov 22 - Dec 21 (approx)
+                decan1: { ruler: "Jupiter (Sagittarius)", energy: "Expansion & Philosophy. Travel for higher learning, publishing, major sporting events, or engaging with different belief systems. Wide-open spaces are mandatory.", destinations: ["Tibet (Himalayas)", "Oxford/Cambridge (UK)", "Buenos Aires (Argentina - Equestrian)"] },
+                decan2: { ruler: "Mars (Aries)", energy: "Freedom & Energetic Pursuit. Seek high-octane adventure travel, places that require physical stamina, and a general lack of rigid plans. Think trekking and exploration.", destinations: ["Nepal (Annapurna Trek)", "Colorado (USA - Skiing/Hiking)", "Mongolia (Steppes)"] },
+                decan3: { ruler: "Sun (Leo)", energy: "Optimistic Self-Expression & Public Role. Destinations where you can teach, lead, or inspire others. Good for public tours, lectures, or performing on an international stage.", destinations: ["San Miguel de Allende (Mexico)", "Sydney (Australia)", "The French Riviera"] }
+            },
+            {
+                sign: "Capricorn", range: [290, 320], // Dec 22 - Jan 19 (approx)
+                decan1: { ruler: "Saturn (Capricorn)", energy: "Career & Ambition. Travel focused on work, establishing authority, and connecting with powerful institutions or historical structures. Mountains and old cities are key.", destinations: ["New York City (Wall Street)", "Pyramids of Giza (Egypt)", "Hong Kong (Business)"] },
+                decan2: { ruler: "Venus (Taurus)", energy: "Building Wealth & Material Security. Seek places known for stable financial markets, high-end real estate, or conservative investment opportunities. Focus on enduring value.", destinations: ["Singapore", "Zurich (Switzerland)", "Vatican City (History/Endurance)"] },
+                decan3: { ruler: "Mercury (Virgo)", energy: "Service & Detailed Planning. Ideal for trips involving charity work, meticulous planning, or organizing complex logistical projects. Focus on solving problems.", destinations: ["Tokyo (Japan - Efficiency)", "Helsinki (Finland)", "Any place needing structured aid"] }
+            },
+            {
+                sign: "Aquarius", range: [320, 350], // Jan 20 - Feb 18 (approx)
+                decan1: { ruler: "Uranus (Aquarius)", energy: "Technology & Revolution. Seek places known for futuristic thinking, scientific breakthroughs, or unique community experiments. Good for networking with visionaries.", destinations: ["Austin (USA - Tech Hub)", "Space Coast (Florida, USA)", "Canberra (Australia - Planning)"] },
+                decan2: { ruler: "Mercury (Gemini)", energy: "Social Networking & Idea Exchange. Travel for large conferences, festivals, or any environment where many diverse ideas are being shared rapidly. Group travel is favored.", destinations: ["SXSW (USA - Conference)", "Montreal (Canada)", "Berlin (Germany - Diverse Scene)"] },
+                decan3: { ruler: "Venus (Libra)", energy: "Justice & Community Harmony. Destinations focused on humanitarian causes, legal reform, or creating equitable spaces. Think peaceful, aesthetically pleasing cities.", destinations: ["Stockholm (Sweden)", "Vancouver (Canada)", "Copenhagen (Denmark)"] }
+            },
+            {
+                sign: "Pisces", range: [350, 20], // Feb 19 - Mar 20 (approx) - Wrap-around case
+                decan1: { ruler: "Neptune (Pisces)", energy: "Spiritual Connection & Escapism. Ideal for places near the ocean, where you can meditate, create art, or engage in deep spiritual retreat. Water is essential.", destinations: ["Maui (Hawaii)", "Isle of Skye (Scotland)", "Northern Lights regions"] },
+                decan2: { ruler: "Pluto (Scorpio)", energy: "Sacrifice & Deep Healing. Travel for shedding old habits, intensive psychological cleansing, or connecting with places that hold deep, ancestral pain that needs resolution.", destinations: ["Kyoto (Japan - Temples)", "A Remote Ashram (India)", "Lisbon (Portugal)"] },
+                decan3: { ruler: "Moon (Cancer)", energy: "Comfort & Emotional Security. Seek gentle, quiet places where you can focus on self-care, simple pleasures, and rebuilding emotional foundations. Small towns or villages.", destinations: ["Provence (France)", "A small coastal village in Italy", "New Zealand (South Island)"] }
+            },
+        ];
+
+        // Function to find the Decan based on birth date
+        function getDecan(date) {
+            const birthMonth = date.getMonth();
+            const birthDay = date.getDate();
+            
+            // Map the date to an approximate Ecliptic Longitude (Sun Sign Degree 0-360)
+            const dateToDegrees = (month, day) => {
+                const daysInMonth = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30];
+                let dayOfYear = 0;
+                for (let i = 1; i <= month; i++) {
+                    dayOfYear += daysInMonth[i - 1];
+                }
+                dayOfYear += day;
+                
+                // Approximate 365 days to 360 degrees, starting Aries at ~80 days (March 21)
+                // We'll use the predefined ranges for simplicity and consistency.
+                return dayOfYear;
+            };
+
+            const targetDay = dateToDegrees(birthMonth + 1, birthDay);
+
+            let signData = null;
+            let sunDegreeInSign = 0;
+            let currentSignIndex = 0;
+
+            // Find the correct sign based on the range (using a simplified 0-360 day/degree model)
+            // Adjust ranges to handle the Pisces wrap-around correctly (350 up to 20)
+            const getSignByDay = (day) => {
+                for (let i = 0; i < ZODIAC_DATA.length; i++) {
+                    const data = ZODIAC_DATA[i];
+                    const [start, end] = data.range;
+
+                    if (start > end) { // Pisces wrap-around: 350 to 20 (next cycle)
+                        if (day >= start || day < end) {
+                            return { data: data, index: i, start: start };
+                        }
+                    } else if (day >= start && day < end) {
+                        return { data: data, index: i, start: start };
+                    }
+                }
+                // Default back to Aries if something fails (shouldn't happen with correct ranges)
+                return { data: ZODIAC_DATA[0], index: 0, start: ZODIAC_DATA[0].range[0] };
+            };
+
+            const foundSign = getSignByDay(targetDay);
+            signData = foundSign.data;
+            let startDay = foundSign.start;
+
+            if (signData.sign === "Pisces" && targetDay < 20) {
+                 // If in the wrap-around (after Dec 31), calculate degree based on 360+day
+                 sunDegreeInSign = targetDay + (365 - 350); // E.g., Day 1 (Jan 1) -> 16th degree
+            } else {
+                sunDegreeInSign = targetDay - startDay;
+            }
+
+            // Determine the decan (30 degrees in a sign, 10 degrees per decan)
+            let decanIndex = Math.floor(sunDegreeInSign / 10) + 1;
+            
+            // Ensure decanIndex is 1, 2, or 3
+            if (decanIndex < 1) decanIndex = 1;
+            if (decanIndex > 3) decanIndex = 3;
+
+            const decanKey = 'decan' + decanIndex;
+            const decanProfile = signData[decanKey];
+
+            return {
+                sign: signData.sign,
+                decanIndex: decanIndex,
+                decanProfile: decanProfile,
+                degree: sunDegreeInSign.toFixed(0) + '°' // Display degree in sign
+            };
+        }
+
+        // Function to update the UI with Decan data
+        function updateUI(profile) {
+            document.getElementById('signName').textContent = `${profile.sign} (${profile.degree})`;
+            document.getElementById('decanName').textContent = `Decan ${profile.decanIndex} (Ruled by ${profile.decanProfile.ruler})`;
+            document.getElementById('decanEnergy').textContent = profile.decanProfile.energy;
+            
+            const list = document.getElementById('destinationList');
+            list.innerHTML = profile.decanProfile.destinations.map(dest => `<li><span class="font-bold text-white">${dest.split('(')[0].trim()}</span> ${dest.includes('(') ? '(' + dest.split('(')[1] : ''}</li>`).join('');
+
+            document.getElementById('initialMessage').classList.add('hidden');
+            document.getElementById('resultCard').classList.remove('hidden');
+        }
+
+        // --- ACCESS CONTROL AND INITIALIZATION ---
+
+        function checkAccess() {
+            const gate = document.getElementById('accessGate');
+            const app = document.getElementById('appContainer');
+            const domainWarning = document.getElementById('domainWarning');
+            const currentHost = window.location.hostname;
+            
+            let isAllowedDomain = currentHost === REQUIRED_DOMAIN || currentHost.includes('github.io') || currentHost === 'localhost' || currentHost === '127.0.0.1';
+            let isSubscribed = localStorage.getItem(SUBSCRIBED_FLAG) === 'true';
+
+            // 1. Check Domain Restriction (Client-side deterrent)
+            if (!isAllowedDomain) {
+                gate.classList.remove('hidden');
+                document.getElementById('gateTitle').textContent = "Domain Mismatch";
+                document.getElementById('gateMessage').textContent = "This tool can only be accessed on the approved website domain to protect the content. Please use the original embedded page.";
+                document.getElementById('unlockButton').classList.add('hidden');
+                domainWarning.classList.remove('hidden');
+                domainWarning.textContent = `Error: App accessed from unauthorized domain: ${currentHost}. Required: ${REQUIRED_DOMAIN}`;
+                return false;
+            }
+
+            // 2. Check Subscription Gate
+            if (isSubscribed) {
+                gate.classList.add('hidden');
+                app.classList.remove('hidden');
+                return true;
+            } else {
+                // Show Subscription Gate
+                gate.classList.remove('hidden');
+                app.classList.add('hidden');
+                return false;
+            }
+        }
+
+        function handleUnlock() {
+            localStorage.setItem(SUBSCRIBED_FLAG, 'true');
+            checkAccess();
+        }
+
+        // --- Event Listeners and Setup ---
+        window.onload = () => {
+            // Attach event listener for the unlock button
+            document.getElementById('unlockButton').addEventListener('click', handleUnlock);
+            
+            // Initial check for domain and subscription status
+            if (checkAccess()) {
+                 // If unlocked, attach the date input listener
+                document.getElementById('birthDate').addEventListener('change', (e) => {
+                    const date = new Date(e.target.value + 'T12:00:00Z'); // Ensure date is parsed reliably
+                    const profile = getDecan(date);
+                    updateUI(profile);
+                });
+                
+                // Trigger initial calculation with the default date
+                const defaultDate = document.getElementById('birthDate').value;
+                const defaultProfile = getDecan(new Date(defaultDate + 'T12:00:00Z'));
+                updateUI(defaultProfile);
+            }
+        };
+
+    </script>
+</body>
+</html>
