@@ -60,11 +60,12 @@
             <!-- Input: Birth Date -->
             <div>
                 <label for="birthDate" class="block text-lg font-semibold mb-3 text-white">1. Select Your Birth Date:</label>
-                <input type="date" id="birthDate" value="1990-01-01" required 
+                <!-- Default date set to March 23, 1983 (Aries Decan 1) to test the fix -->
+                <input type="date" id="birthDate" value="1983-03-23" required 
                        class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:ring-primary focus:border-primary transition duration-150">
             </div>
 
-            <!-- New Button Added Here -->
+            <!-- Process Button -->
             <button id="processButton" class="w-full py-3 px-4 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition duration-200 shadow-lg mt-4">
                 Reveal My Travel Profile
             </button>
@@ -116,148 +117,170 @@
 
 
     <script>
-        // --- SECURITY & ACCESS CONTROL CONFIGURATION ---
-        // !!! IMPORTANT: CHANGE THIS TO YOUR ACTUAL WEBSITE DOMAIN !!!
+        // --- SECURITY & ACCESS CONTROL CONFIGURATION (Unchanged) ---
         const REQUIRED_DOMAIN = 'myastrowebsite.com';
-        // !!! DO NOT DEPLOY WITHOUT CHANGING THE DOMAIN ABOVE !!!
-        
         const SUBSCRIBED_FLAG = 'astroDecanSubscribed';
         // -----------------------------------------------------------
 
         // Data Structure: Zodiac Signs and Decan Interpretations
+        // Ranges are based on Day of Year (Jan 1 = Day 1).
+        // Standard start dates (non-leap year): Aries=80 (Mar 21), Taurus=110 (Apr 20), etc.
         const ZODIAC_DATA = [
-            // Note: Each sign covers 30 degrees. Decans are 10 degrees each.
-            // 0-9 deg: Decan 1 (Primary influence)
-            // 10-19 deg: Decan 2 (Secondary influence)
-            // 20-29 deg: Decan 3 (Tertiary influence)
             {
-                sign: "Aries", range: [80, 110], // Mar 21 - Apr 19 (Approx day of year, 80=Mar 21)
+                sign: "Aries", range: [80, 110], // Mar 21 - Apr 19
                 decan1: { ruler: "Mars (Aries)", energy: "Pure Action & Initiation. Seek high-energy environments, places of competition, and rugged terrain. Ideal for solo travel, intense physical activity, and new beginnings.", destinations: ["Patagonia (Argentina/Chile)", "Las Vegas (USA)", "Northern Italy (Adrenaline Sports)"] },
                 decan2: { ruler: "Sun (Leo)", energy: "Leadership & Visibility. Travel for luxury, culture, and places where you can shine, perform, or be at the center of attention. Good for public speaking or creative projects.", destinations: ["Paris (France)", "New York City (USA)", "Dubai (UAE)"] },
-                decan3: { ruler: "Venus (Sagittarius)", energy: "Spiritual Passion & Broad Horizons. Perfect for travel that expands the mind, involves higher learning, or explores ancient philosophies and foreign cultures.", destinations: ["Machu Picchu (Peru)", "Kyoto (Japan)", "Bali (Indonesia)"] }
+                decan3: { ruler: "Jupiter (Sagittarius)", energy: "Spiritual Passion & Broad Horizons. Perfect for travel that expands the mind, involves higher learning, or explores ancient philosophies and foreign cultures.", destinations: ["Machu Picchu (Peru)", "Kyoto (Japan)", "Bali (Indonesia)"] }
             },
             {
-                sign: "Taurus", range: [110, 140], // Apr 20 - May 20 (approx)
+                sign: "Taurus", range: [110, 140], // Apr 20 - May 20
                 decan1: { ruler: "Venus (Taurus)", energy: "Sensual Comfort & Natural Beauty. Seek places known for exquisite food, fine art, slow pace, and deep connection to nature. Focus on luxury relaxation and grounding.", destinations: ["Tuscany (Italy)", "Napa Valley (USA)", "Bordeaux (France)"] },
                 decan2: { ruler: "Mercury (Virgo)", energy: "Productivity & Practicality. Travel to places where you can focus on healing, work, or detailed study. Excellent for organizing retreats, health check-ups, or vocational trips.", destinations: ["Zurich (Switzerland)", "San Francisco (USA) (Tech/Wellness)", "The English Countryside"] },
                 decan3: { ruler: "Saturn (Capricorn)", energy: "Endurance & Legacy. Destinations that challenge you, involve working with history, or establishing long-term goals. Mountains and places of great tradition are favored.", destinations: ["Rocky Mountains (USA/Canada)", "Rome (Italy)", "Berlin (Germany)"] }
             },
             {
-                sign: "Gemini", range: [140, 170], // May 21 - Jun 20 (approx)
+                sign: "Gemini", range: [140, 170], // May 21 - Jun 20
                 decan1: { ruler: "Mercury (Gemini)", energy: "Communication & Quick Movement. Best for places with vibrant social scenes, bustling markets, or where you need to learn a new language or skill. Short trips are favored.", destinations: ["London (UK)", "Hong Kong (China)", "Barcelona (Spain)"] },
                 decan2: { ruler: "Jupiter (Libra)", energy: "Relationships & Intellectual Expansion. Travel focused on diplomatic meetings, collaborative projects, or finding balance and justice. Look for places with renowned universities or vibrant social justice movements.", destinations: ["Geneva (Switzerland)", "Toronto (Canada)", "Boston (USA)"] },
                 decan3: { ruler: "Mars (Aquarius)", energy: "Innovation & Group Action. Seek communities focused on technology, social reform, or unique, cutting-edge art. Ideal for large festivals, conventions, or humanitarian work.", destinations: ["Tokyo (Japan)", "Burning Man (USA - Group Focus)", "Silicon Valley (USA)"] }
             },
             {
-                sign: "Cancer", range: [170, 200], // Jun 21 - Jul 22 (approx)
+                sign: "Cancer", range: [170, 200], // Jun 21 - Jul 22
                 decan1: { ruler: "Moon (Cancer)", energy: "Home & Nurturing. Destinations that feel like a sanctuary, near water, or where you can connect with family history and deep emotion. Focus on rest and healing.", destinations: ["The Greek Islands", "Coastal Maine (USA)", "Lakeside Retreats (Worldwide)"] },
                 decan2: { ruler: "Pluto (Scorpio)", energy: "Transformation & Intensity. Travel for deep psychological work, uncovering secrets, or intense spiritual experiences. Seek places with historical mysteries or geothermal activity.", destinations: ["New Orleans (USA)", "Iceland (Volcanic Areas)", "Transylvania (Romania)"] },
                 decan3: { ruler: "Neptune (Pisces)", energy: "Imagination & Spirituality. Ideal for places associated with creative arts, meditation, or places where the boundary between worlds feels thin. Coastal and misty areas are favored.", destinations: ["Ireland (Coastal)", "Goa (India)", "Santorini (Greece)"] }
             },
             {
-                sign: "Leo", range: [200, 230], // Jul 23 - Aug 22 (approx)
+                sign: "Leo", range: [200, 230], // Jul 23 - Aug 22
                 decan1: { ruler: "Sun (Leo)", energy: "Creative Expression & Royal Treatment. Travel that involves performance, art, or experiencing grand, historic splendor. You need warmth, drama, and appreciation.", destinations: ["Los Angeles (Hollywood)", "Monaco", "Versailles (France)"] },
                 decan2: { ruler: "Jupiter (Sagittarius)", energy: "High Adventure & Optimism. Travel for grand, expansive experiences, large-scale exploration, and connecting with global cultures. Think wide-open spaces and joyful pursuits.", destinations: ["African Safari (Kenya/Tanzania)", "The Andes Mountains", "Rio de Janeiro (Brazil)"] },
                 decan3: { ruler: "Mars (Aries)", energy: "Competitive Drive & Self-Assertion. Destinations that require courage, physical challenge, or places where you can lead a group project. Volcanic areas and places of dynamic growth.", destinations: ["Mount Fuji (Japan)", "Shanghai (China - Business)", "Australia (Outdoor Challenges)"] }
             },
             {
-                sign: "Virgo", range: [230, 260], // Aug 23 - Sep 22 (approx)
+                sign: "Virgo", range: [230, 260], // Aug 23 - Sep 22
                 decan1: { ruler: "Mercury (Virgo)", energy: "Health & Organization. Seek wellness retreats, places for detailed study (e.g., historical archives), or environments focused on service. Perfect for eco-tourism or digital nomad setup.", destinations: ["Copenhagen (Denmark - Efficiency)", "Costa Rica (Eco-tourism)", "Ojai (California - Wellness)"] },
                 decan2: { ruler: "Saturn (Capricorn)", energy: "Structure & Discipline. Destinations that involve hard work, mastering a craft, or connecting with institutions and government. Think historical capitals and academic centers.", destinations: ["Washington D.C. (USA)", "London (UK)", "A Monastery (Tibet/Nepal)"] },
                 decan3: { ruler: "Venus (Taurus)", energy: "Artisan Skill & Earthly Pleasures. Focus on mastering an artistic skill, slow travel, or visiting places famous for crafts, pottery, or textile production. Deeply sensual experiences.", destinations: ["Florence (Italy)", "Marrakech (Morocco)", "Kyushu (Japan - Ceramics)"] }
             },
             {
-                sign: "Libra", range: [260, 290], // Sep 23 - Oct 22 (approx)
+                sign: "Libra", range: [260, 290], // Sep 23 - Oct 22
                 decan1: { ruler: "Venus (Libra)", energy: "Harmony & Partnership. Ideal for travel with a spouse or partner. Seek places known for beauty, diplomacy, and balanced social life. Artistic elegance is key.", destinations: ["Vienna (Austria)", "Venice (Italy)", "Buenos Aires (Argentina)"] },
                 decan2: { ruler: "Uranus (Aquarius)", energy: "Freedom & Intellectual Excitement. Destinations that are unconventional, modern, or focus on social equity and technological breakthroughs. Good for meeting new kinds of people.", destinations: ["Reykjavik (Iceland)", "Amsterdam (Netherlands)", "Portland (Oregon, USA)"] },
                 decan3: { ruler: "Mercury (Gemini)", energy: "Social Buzz & Lightheartedness. Travel for meeting many people, attending lighthearted events, or simple pleasure trips that don't require heavy emotional investment.", destinations: ["Miami Beach (USA)", "Tel Aviv (Israel)", "Ibiza (Spain)"] }
             },
             {
-                sign: "Scorpio", range: [290, 320], // Oct 23 - Nov 21 (approx)
+                sign: "Scorpio", range: [290, 320], // Oct 23 - Nov 21
                 decan1: { ruler: "Pluto (Scorpio)", energy: "Deep Transformation & Mystery. Seek destinations that challenge your limits, involve intense research, or are associated with the underworld or ancient rituals. Powerful, healing waters.", destinations: ["Mexico City (Mexico)", "Sicily (Italy)", "Chernobyl (Ukraine - History)"] },
                 decan2: { ruler: "Neptune (Pisces)", energy: "Spiritual Surrender & Escapism. Perfect for deep retreats, places where you can lose yourself in the vastness of the ocean or the quiet of a monastery. Focus on dreams and healing.", destinations: ["Kerala (India)", "A Remote Caribbean Island", "The Amazon Rainforest"] },
                 decan3: { ruler: "Moon (Cancer)", energy: "Emotional Depth & Security. Travel to reconnect with roots, resolve deep family issues, or seek safe, deeply comforting environments. Coastal homes or quiet islands.", destinations: ["A Private Villa in Cornwall (UK)", "Malta", "Your Ancestral Homeland"] }
             },
             {
-                sign: "Sagittarius", range: [320, 350], // Nov 22 - Dec 21 (approx)
+                sign: "Sagittarius", range: [320, 350], // Nov 22 - Dec 21
                 decan1: { ruler: "Jupiter (Sagittarius)", energy: "Expansion & Philosophy. Travel for higher learning, publishing, major sporting events, or engaging with different belief systems. Wide-open spaces are mandatory.", destinations: ["Tibet (Himalayas)", "Oxford/Cambridge (UK)", "Buenos Aires (Argentina - Equestrian)"] },
                 decan2: { ruler: "Mars (Aries)", energy: "Freedom & Energetic Pursuit. Seek high-octane adventure travel, places that require physical stamina, and a general lack of rigid plans. Think trekking and exploration.", destinations: ["Nepal (Annapurna Trek)", "Colorado (USA - Skiing/Hiking)", "Mongolia (Steppes)"] },
                 decan3: { ruler: "Sun (Leo)", energy: "Optimistic Self-Expression & Public Role. Destinations where you can teach, lead, or inspire others. Good for public tours, lectures, or performing on an international stage.", destinations: ["San Miguel de Allende (Mexico)", "Sydney (Australia)", "The French Riviera"] }
             },
             {
-                sign: "Capricorn", range: [350, 20], // Dec 22 - Jan 19 (approx) - Wrap-around case
+                sign: "Capricorn", range: [350, 20], // Dec 22 - Jan 19 (Wrap-around case: Day 350 to Day 19)
                 decan1: { ruler: "Saturn (Capricorn)", energy: "Career & Ambition. Travel focused on work, establishing authority, and connecting with powerful institutions or historical structures. Mountains and old cities are key.", destinations: ["New York City (Wall Street)", "Pyramids of Giza (Egypt)", "Hong Kong (Business)"] },
                 decan2: { ruler: "Venus (Taurus)", energy: "Building Wealth & Material Security. Seek places known for stable financial markets, high-end real estate, or conservative investment opportunities. Focus on enduring value.", destinations: ["Singapore", "Zurich (Switzerland)", "Vatican City (History/Endurance)"] },
                 decan3: { ruler: "Mercury (Virgo)", energy: "Service & Detailed Planning. Ideal for trips involving charity work, meticulous planning, or organizing complex logistical projects. Focus on solving problems.", destinations: ["Tokyo (Japan - Efficiency)", "Helsinki (Finland)", "Any place needing structured aid"] }
             },
             {
-                sign: "Aquarius", range: [20, 50], // Jan 20 - Feb 18 (approx)
+                sign: "Aquarius", range: [20, 50], // Jan 20 - Feb 18
                 decan1: { ruler: "Uranus (Aquarius)", energy: "Technology & Revolution. Seek places known for futuristic thinking, scientific breakthroughs, or unique community experiments. Good for networking with visionaries.", destinations: ["Austin (USA - Tech Hub)", "Space Coast (Florida, USA)", "Canberra (Australia - Planning)"] },
                 decan2: { ruler: "Mercury (Gemini)", energy: "Social Networking & Idea Exchange. Travel for large conferences, festivals, or any environment where many diverse ideas are being shared rapidly. Group travel is favored.", destinations: ["SXSW (USA - Conference)", "Montreal (Canada)", "Berlin (Germany - Diverse Scene)"] },
                 decan3: { ruler: "Venus (Libra)", energy: "Justice & Community Harmony. Destinations focused on humanitarian causes, legal reform, or creating equitable spaces. Think peaceful, aesthetically pleasing cities.", destinations: ["Stockholm (Sweden)", "Vancouver (Canada)", "Copenhagen (Denmark)"] }
             },
             {
-                sign: "Pisces", range: [50, 80], // Feb 19 - Mar 20 (approx)
+                sign: "Pisces", range: [50, 80], // Feb 19 - Mar 20
                 decan1: { ruler: "Neptune (Pisces)", energy: "Spiritual Connection & Escapism. Ideal for places near the ocean, where you can meditate, create art, or engage in deep spiritual retreat. Water is essential.", destinations: ["Maui (Hawaii)", "Isle of Skye (Scotland)", "Northern Lights regions"] },
                 decan2: { ruler: "Pluto (Scorpio)", energy: "Sacrifice & Deep Healing. Travel for shedding old habits, intensive psychological cleansing, or connecting with places that hold deep, ancestral pain that needs resolution.", destinations: ["Kyoto (Japan - Temples)", "A Remote Ashram (India)", "Lisbon (Portugal)"] },
                 decan3: { ruler: "Moon (Cancer)", energy: "Comfort & Emotional Security. Seek gentle, quiet places where you can focus on self-care, simple pleasures, and rebuilding emotional foundations. Small towns or villages.", destinations: ["Provence (France)", "A small coastal village in Italy", "New Zealand (South Island)"] }
             },
         ];
 
-        // Function to convert date to an approximate day of year for sign calculation
+        // Checks if a year is a leap year
+        function isLeapYear(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+        }
+        
+        // Function to convert date to Day of Year (Jan 1 = 1)
         function getDayOfYear(date) {
-            const startOfYear = new Date(date.getFullYear(), 0, 0);
-            const diff = date - startOfYear;
+            const year = date.getUTCFullYear();
+            const startOfYear = Date.UTC(year, 0, 1);
+            const diff = date.getTime() - startOfYear;
             const oneDay = 1000 * 60 * 60 * 24;
-            return Math.floor(diff / oneDay);
+            // The Day of Year starts at 1
+            return Math.floor(diff / oneDay) + 1; 
         }
 
         // Function to find the Decan based on birth date
         function getDecan(date) {
             const targetDay = getDayOfYear(date);
+            const year = date.getUTCFullYear();
             let signData = null;
+            let startDay = 0;
             let sunDegreeInSign = 0;
 
-            const getSignByDay = (day) => {
+            const getSignByDay = (day, year) => {
+                // Adjust ranges for a leap year starting after Feb 29 (day 60)
+                const leapAdjustment = isLeapYear(year) && day > 60 ? 1 : 0; 
+                const adjustedDay = day - leapAdjustment;
+
                 for (let i = 0; i < ZODIAC_DATA.length; i++) {
                     const data = ZODIAC_DATA[i];
                     const [start, end] = data.range;
-
-                    if (start > end) { // Wrap-around case (Capricorn, e.g., Day 350 to Day 20)
-                        if (day >= start || day < end) {
-                            return { data: data, start: start };
+                    
+                    // Adjust start/end for signs starting *after* Feb 29 for the current year
+                    const adjustedStart = start + (isLeapYear(year) && start > 60 ? 1 : 0);
+                    const adjustedEnd = end + (isLeapYear(year) && end > 60 ? 1 : 0);
+                    
+                    // Handle Dec 22 - Jan 19 wrap-around
+                    if (start > end) { 
+                        // If day is Dec 22 (or later) OR Jan 19 (or earlier)
+                        if (day >= adjustedStart || day < adjustedEnd) {
+                            return { data: data, start: adjustedStart };
                         }
-                    } else if (day >= start && day < end) {
-                        return { data: data, start: start };
+                    } 
+                    // Handle standard range
+                    else if (day >= adjustedStart && day < adjustedEnd) {
+                        return { data: data, start: adjustedStart };
                     }
                 }
-                // Fallback for dates outside the main ranges (e.g., leap day adjustments)
+                // Fallback (should not happen if all ranges cover 365 days)
                 return { data: ZODIAC_DATA[0], start: ZODIAC_DATA[0].range[0] }; 
             };
 
-            const foundSign = getSignByDay(targetDay);
+            const foundSign = getSignByDay(targetDay, year);
             signData = foundSign.data;
-            let startDay = foundSign.start;
+            startDay = foundSign.start;
 
-            if (signData.sign === "Capricorn" && targetDay >= 350) {
-                 // Dec 22 to Dec 31
+            const daysInYear = isLeapYear(year) ? 366 : 365;
+
+            // Calculate Sun Degree in Sign (0 to 29)
+            if (signData.sign === "Capricorn" && targetDay >= startDay) {
+                 // Dec 22 onwards
                  sunDegreeInSign = targetDay - startDay;
-            } else if (signData.sign === "Capricorn" && targetDay < 20) {
+            } else if (signData.sign === "Capricorn" && targetDay < startDay) {
                  // Jan 1 to Jan 19
-                 // Days in year (365 or 366) - start day (350) + target day
-                 const daysInYear = new Date(date.getFullYear(), 1, 29).getDate() === 29 ? 366 : 365;
                  sunDegreeInSign = (daysInYear - startDay) + targetDay;
             } else if (startDay > targetDay) {
-                // This handles the Aries wrap-around if needed, but the ranges should prevent it.
-                sunDegreeInSign = targetDay + 365 - startDay; 
+                 // This covers the day shift for leap years where the current day is before the start day of the sign 
+                 // (e.g., trying to calculate Aries in a leap year on Mar 20)
+                 // This case should be covered by the range check, but is here for robustness.
+                 sunDegreeInSign = 0; // Default to 0 if misaligned
             } else {
+                // All other non-wrapping signs (Aries through Sagittarius)
                 sunDegreeInSign = targetDay - startDay;
             }
+            
+            // Adjust sunDegreeInSign to fit within 30 degrees (0-29)
+            sunDegreeInSign = sunDegreeInSign % 30;
 
-            // Determine the decan (30 degrees in a sign, 10 degrees per decan)
+            // Determine the decan (0-9 = Decan 1, 10-19 = Decan 2, 20-29 = Decan 3)
             let decanIndex = Math.floor(sunDegreeInSign / 10) + 1;
             
-            // Ensure decanIndex is 1, 2, or 3
             if (decanIndex < 1) decanIndex = 1;
             if (decanIndex > 3) decanIndex = 3;
 
@@ -289,8 +312,11 @@
         function calculateProfile() {
             const dateInput = document.getElementById('birthDate').value;
             if (dateInput) {
-                // Use T12:00:00Z to ensure the date is parsed correctly without timezone issues
-                const date = new Date(dateInput + 'T12:00:00Z'); 
+                // Parse date string (YYYY-MM-DD) directly as UTC to avoid local timezone shifts
+                const [year, month, day] = dateInput.split('-').map(Number);
+                // Note: month is 0-indexed in JavaScript Date (Jan=0, Mar=2)
+                const date = new Date(Date.UTC(year, month - 1, day)); 
+                
                 const profile = getDecan(date);
                 updateUI(profile);
             }
@@ -307,7 +333,6 @@
             let isAllowedDomain = currentHost === REQUIRED_DOMAIN || currentHost.includes('github.io') || currentHost === 'localhost' || currentHost === '127.0.0.1';
             let isSubscribed = localStorage.getItem(SUBSCRIBED_FLAG) === 'true';
 
-            // 1. Check Domain Restriction (Client-side deterrent)
             if (!isAllowedDomain) {
                 gate.classList.remove('hidden');
                 document.getElementById('gateTitle').textContent = "Domain Mismatch";
@@ -318,13 +343,11 @@
                 return false;
             }
 
-            // 2. Check Subscription Gate
             if (isSubscribed) {
                 gate.classList.add('hidden');
                 app.classList.remove('hidden');
                 return true;
             } else {
-                // Show Subscription Gate
                 gate.classList.remove('hidden');
                 app.classList.add('hidden');
                 return false;
@@ -338,15 +361,10 @@
 
         // --- Event Listeners and Setup ---
         window.onload = () => {
-            // Attach event listener for the unlock button
             document.getElementById('unlockButton').addEventListener('click', handleUnlock);
             
-            // Initial check for domain and subscription status
             if (checkAccess()) {
-                 // Attach event listener for the NEW process button
                 document.getElementById('processButton').addEventListener('click', calculateProfile);
-                
-                // Trigger initial calculation with the default date
                 calculateProfile();
             }
         };
